@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace LaptopServer.Service
@@ -10,6 +11,7 @@ namespace LaptopServer.Service
     public interface ITokenService
     {
         Task<string> GetTokenAsync(IdentityUser user);
+        string GetRefreshToken();
     }
     public class TokenService : ITokenService
     {
@@ -53,8 +55,15 @@ namespace LaptopServer.Service
 
             var Handler = new JwtSecurityTokenHandler();
             var token = Handler.CreateToken(TokenDecs);
-
+            
             return Handler.WriteToken(token);
+        }
+        public string GetRefreshToken()
+        {
+            var randomNumber = new byte[64];
+            var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
         }
     }
 }

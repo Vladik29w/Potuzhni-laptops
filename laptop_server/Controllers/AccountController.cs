@@ -20,17 +20,19 @@ namespace LaptopServer.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDTO>> UserRegister(RegisterDTO register)
         {
-            var (user, token) = await _accountService.UserRegister(register);
+            var (user, token, refresh) = await _accountService.UserRegister(register);
             if (user == null) return Unauthorized();
             SetCookie(token);
+            SetRefreshCookie(refresh);
             return Ok(user);
         }
         [HttpPost("login")]
         public async Task<ActionResult<UserDTO>> UserLogin(LoginDTO login)
         {
-            var (user, token) = await _accountService.UserLogin(login);
+            var (user, token, refresh) = await _accountService.UserLogin(login);
             if (user == null) return Unauthorized();
             SetCookie(token);
+            SetRefreshCookie(refresh);
             return Ok(user);
         }
         [Authorize]
@@ -49,6 +51,19 @@ namespace LaptopServer.Controllers
                 Roles = roles
             });
         }
+        [HttpPost("refresh")]
+        public async Task<ActionResult> Refresh()
+        {
+            var refToken = Request.Cookies["refToken"];
+            if (string.IsNullOrEmpty(refToken)) return Unauthorized();
+
+            var (user, token, refresh) = await _accountService.RefreshUserToken(refToken);
+            if (user == null) return Unauthorized();
+
+            SetCookie(token);
+            SetRefreshCookie(refresh);
+            return Ok(user);
+        }
         private void SetCookie (string token)
         {
             var cookie = new CookieOptions
@@ -59,6 +74,17 @@ namespace LaptopServer.Controllers
                 Expires = DateTime.UtcNow.AddMinutes(10)
             };
             Response.Cookies.Append("jwt", token, cookie);
+        }
+        private void SetRefreshCookie(string refToken)
+        {
+            var cookie = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(1),
+            };
+            Response.Cookies.Append("refToken", refToken, cookie);
         }
     }
 }
