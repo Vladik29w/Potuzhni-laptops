@@ -1,0 +1,50 @@
+<div class="register-container">
+  <h2>Register</h2>
+
+  @if (error()) {
+  <div class="error-alert">
+    {{ error() }}
+  </div>
+  }
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input id="name" type="text" formControlName="name" placeholder="Enter your name">
+      @if (registerForm.controls.name.touched && registerForm.controls.name.errors?.['required']) {
+      <small class="error-text">Name is required.</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" placeholder="Enter your email">
+      @if (registerForm.controls.email.touched && registerForm.controls.email.errors?.['required']) {
+      <small class="error-text">Email is required.</small>
+      }
+      @if (registerForm.controls.email.touched && registerForm.controls.email.errors?.['email']) {
+      <small class="error-text">Please enter a valid email address.</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input id="password" type="password" formControlName="password" placeholder="Create a password">
+      @if (registerForm.controls.password.touched && registerForm.controls.password.errors?.['minlength']) {
+      <small class="error-text">Password must be at least 6 characters long.</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password</label>
+      <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Repeat your password">
+      @if (registerForm.touched && registerForm.errors?.['passwordsMismatch']) {
+      <small class="error-text">Passwords do not match.</small>
+      }
+    </div>
+
+    <button type="submit" [disabled]="isLoading()">
+      {{ isLoading() ? 'Registering...' : 'Register' }}
+    </button>
+  </form>
+</div>

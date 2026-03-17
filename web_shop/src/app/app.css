@@ -1,0 +1,277 @@
+/* app.css - Фінальна потужна версія */
+
+/* --- 1. АНІМАЦІЯ ТА ОСНОВА КОШИКА --- */
+
+.cart-backdrop, .cart-sidebar {
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: fixed;
+}
+
+/* Затемнення */
+.cart-backdrop {
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(44, 62, 80, 0.6);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  backdrop-filter: blur(2px);
+}
+
+  .cart-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+/* Панель кошика */
+.cart-sidebar {
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 400px;
+  height: 100vh;
+  background: white;
+  box-shadow: -5px 0 25px rgba(0,0,0,0.2);
+  z-index: 999;
+  /* Flexbox для структури: Хедер -> Контент (Scroll) -> Футер/Кнопка */
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+}
+
+  .cart-sidebar.open {
+    transform: translateX(0);
+  }
+
+/* --- 2. СТИЛІЗАЦІЯ ВНУТРІШНОСТІ КОШИКА --- */
+
+/* Хедер кошика */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  background-color: #2c3e50; /* Темний колір бренду */
+  color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  flex-shrink: 0; /* Не дозволяє хедеру стискатися */
+}
+
+  .head h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: white;
+    border: none;
+  }
+
+  .head button {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+    .head button:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: white;
+    }
+
+/* Контент кошика */
+.cart-content {
+  flex-grow: 1; /* Займає весь доступний простір */
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto; /* Скрол, якщо багато товарів */
+}
+
+  /* Загальна ціна */
+  .cart-content > p {
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    flex-shrink: 0; /* Не дозволяє ціні стискатися */
+  }
+
+/* Список товарів (Критично для виправлення багу з одним товаром) */
+.cart-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+/* Стиль для ОКРЕМОГО ТОВАРУ */
+.cart-sidebar .cart-item {
+  background: #fff;
+  border: 1px solid #ecf0f1;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between; /* Розсовує текст і кнопку */
+  align-items: center;
+  text-align: left; /* Фікс: примусове вирівнювання ліворуч */
+  width: 100%;
+  font-style: normal;
+  color: #34495e;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+
+  .cart-sidebar .cart-item:hover {
+    transform: translateX(-2px);
+    border-color: #3498db;
+  }
+
+/* Стиль для назви всередині товару */
+.cart-sidebar .item-name {
+  margin-right: 10px;
+  font-weight: 600;
+}
+
+/* Стиль для ПУСТОГО кошика */
+.cart-sidebar .empty-cart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  color: #7f8c8d;
+  border: 2px dashed #bdc3c7;
+  background: #f9f9f9;
+  border-radius: 8px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Кнопка видалення товару */
+.cart-sidebar .cart-item button {
+  background-color: #ffebee;
+  color: #c0392b;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 10px;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+  .cart-sidebar .cart-item button:hover {
+    background-color: #ffcdd2;
+  }
+
+
+/* Кнопка очищення кошика (знизу) */
+.cart-content > button {
+  margin-top: 20px; /* Відступ від останнього елементу списку */
+  margin-bottom: auto; /* Притискає кнопку до низу, якщо товарів мало */
+  width: 100%;
+  padding: 15px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+  transition: background 0.3s, transform 0.2s;
+  flex-shrink: 0; /* Не дозволяє кнопці стискатися */
+}
+
+  .cart-content > button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+  }
+
+
+/* --- 3. ПЛАВАЮЧА КНОПКА ВІДКРИТТЯ КОШИКА --- */
+
+.cart-toggle-btn {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  z-index: 1000;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-family: inherit; /* Використовуємо шрифт з body */
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+  .cart-toggle-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+    background: linear-gradient(135deg, #2980b9, #3498db);
+  }
+
+  .cart-toggle-btn:active {
+    transform: scale(0.95);
+  }
+
+/* --- 4. СТИЛЬ ДЛЯ ПОСИЛАННЯ "CONFIRM PURCHASE" --- */
+
+.order-link {
+  display: block; /* Перетворюємо лінк на блочний елемент, щоб працювали розміри */
+  text-decoration: none; /* Прибираємо стандартне підкреслення */
+  text-align: center;
+  margin-top: 12px;
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #2ecc71, #27ae60); /* "Успішний" зелений колір */
+  color: white !important; /* Гарантуємо білий колір тексту */
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+  transition: all 0.3s ease;
+  box-sizing: border-box; /* Щоб падінги не виштовхували кнопку за межі кошика */
+}
+
+  .order-link:hover {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(46, 204, 113, 0.5);
+  }
+
+  .order-link:active {
+    transform: translateY(0);
+  }
+
+/* Адаптив для телефонів */
+@media (max-width: 768px) {
+  .cart-toggle-btn {
+    top: auto;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px;
+    border-radius: 50%; /* Робимо круглою на мобільному */
+    font-size: 0; /* Ховаємо текст */
+  }
+
+    .cart-toggle-btn::before {
+      content: '🛒'; /* Показуємо тільки іконку */
+      font-size: 1.5rem;
+    }
+}

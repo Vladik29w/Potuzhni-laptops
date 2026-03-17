@@ -1,0 +1,44 @@
+<h1>Potuzhni Laptops</h1>
+
+@if (!showCart()) {
+<button class="cart-toggle-btn" (click)="openCart()">Open cart</button>
+}
+
+<div class="cart-backdrop"
+     [class.active]="showCart()"
+     (click)="closeCart()">
+</div>
+<div class="cart-sidebar" [class.open]="showCart()">
+  <div class="head">
+    <h2>Cart</h2>
+    <button (click)="closeCart()">Close</button>
+  </div>
+
+  <div class="cart-content">
+    <p>Total price: ₴{{ cart()?.grandTotal || 0 }}</p>
+
+    <ul>
+      @for (item of cart()?.items; track item.laptopId) {
+      <li class="cart-item">
+        <span class="item-name">
+          {{ item.laptopName }} (x{{ item.quantity }}) - ₴{{ item.totalPrice }}
+        </span>
+        <button (click)="removeFromCart(item.laptopId)">Delete</button>
+      </li>
+      } @empty {
+      <li class="empty-cart">Cart is empty</li>
+      }
+    </ul>
+
+    @if (cart()?.items?.length) {
+    <button (click)="clearCart()">Clear cart</button>
+    <a [routerLink]="['/order']" class="order-link">Confirm purchase</a>
+    }
+  </div>
+</div>
+<div class="account">
+  <a [routerLink]="['/register']">Register</a>
+  <br />
+  <a [routerLink]="['/login']">Loign</a>
+</div>
+<router-outlet></router-outlet>

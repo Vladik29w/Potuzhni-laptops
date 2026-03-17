@@ -1,0 +1,68 @@
+{
+  "laptops": [
+    {
+      "id": "msi2000pro",
+      "name": "MSI 2000 Pro",
+      "price": 50000,
+      "img": "msi2000pro.png",
+      "CPU": "Core I7 13600H",
+      "RAM": 16,
+      "GPU": "RTX 4070M"
+    },
+    {
+      "id": "asus_rog",
+      "name": "Asus ROG Gamer",
+      "price": 80000,
+      "img": "asus_rog.png",
+      "CPU": "Core I9 13900H",
+      "RAM": 32,
+      "GPU": "RTX 4080M"
+    }
+    ,
+    {
+      "id": "razer_blade",
+      "name": "Razer Blade 15",
+      "price": 69000,
+      "img": "razer_blade.png",
+      "CPU": "Ryzen 5 5600X",
+      "RAM": 16,
+      "GPU": "RTX 4050M"
+    },
+    {
+      "id": "asus_galaxy",
+      "name": "Asus galaxy ULTRA",
+      "price": 100000,
+      "img": "asus_galaxy.png",
+      "CPU": "Ryzen 9 9800X3D",
+      "RAM": 64,
+      "GPU": "RTX 5090M Ti Super SLI"
+    },
+    {
+      "id": "lenovo_thinkpad",
+      "name": "Lenono Thinkpad",
+      "price": 40000,
+      "img": "thinkpad.png",
+      "CPU": "Core I3 12300H",
+      "RAM": 8,
+      "GPU": "MX150"
+    },
+    {
+      "id": "hp_omen",
+      "name": "HP Omen 14",
+      "price": 77700,
+      "img": "hp_omen.png",
+      "CPU": "Ryzen 7 8500Z",
+      "RAM": 16,
+      "GPU": "RX 9070"
+    },
+    {
+      "id": "hp_omen",
+      "name": "HP Omen 14",
+      "price": 77700,
+      "img": "hp_omen.png",
+      "CPU": "Ryzen 7 8500Z",
+      "RAM": 16,
+      "GPU": "RX 9070"
+    }
+  ]
+}

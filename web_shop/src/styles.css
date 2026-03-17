@@ -1,0 +1,351 @@
+/* styles.css - Global Styles */
+
+/* 1. Визначаємо змінні для кольорів (Світла тема за замовчуванням) */
+:root {
+  --bg-color: #f5f5f5;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --heading-color: #2c3e50;
+  --subtext-color: #34495e;
+  --muted-text: #7f8c8d;
+  --primary-color: #3498db;
+  --primary-hover: #2980b9;
+  --success-color: #27ae60;
+  --success-hover: #3dcc72;
+  --danger-color: #e74c3c;
+  --border-color: #ecf0f1;
+  --input-border: #bdc3c7;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-hover: rgba(0, 0, 0, 0.15);
+  --accent-bg: #f8f9fa;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s; /* Плавний перехід теми */
+}
+
+/* App Component Styles */
+app-root {
+  display: block;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+  app-root h1 {
+    text-align: center;
+    color: var(--heading-color);
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 1px;
+  }
+
+  /* Cart Styles */
+  app-root h2 {
+    color: var(--heading-color);
+    margin: 20px 0;
+    font-size: 1.8rem;
+  }
+
+  app-root ul {
+    list-style: none;
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    margin-bottom: 10px;
+    max-width: 500px;
+  }
+
+  app-root li {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: left;
+    color: var(--text-color);
+  }
+
+    app-root li:last-child {
+      color: var(--text-color);
+    }
+
+  app-root p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--success-color);
+    text-align: left;
+  }
+
+/* Main Page Styles */
+.main-page {
+  padding: 20px 0;
+}
+
+  .main-page h2 {
+    text-align: center;
+    color: var(--heading-color);
+    margin-bottom: 30px;
+    font-size: 2rem;
+  }
+
+  /* Search Form */
+  .main-page form {
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .main-page input {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 20px;
+    border: 2px solid var(--input-border);
+    border-radius: 25px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+    background-color: var(--card-bg); /* Важливо для інпутів у темній темі */
+    color: var(--text-color);
+  }
+
+    .main-page input:focus {
+      border-color: var(--primary-color);
+    }
+
+/* Laptop List Grid */
+.laptop-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+}
+
+/* Laptop Cards */
+.laptop-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+  border: 1px solid var(--border-color);
+}
+
+  .laptop-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px var(--shadow-hover);
+  }
+
+.laptop-image {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.laptop-card h3 {
+  color: var(--heading-color);
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+}
+
+.laptop-card .price {
+  color: #2dad5c;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.details-link {
+  display: block;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 0 auto;
+  text-align: center;
+  background: var(--primary-color);
+  color: white;
+  padding: 10px 65px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+  .details-link:hover {
+    background: var(--primary-hover);
+  }
+
+/* Laptop Details Page */
+.laptop-details {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+  .laptop-details h2 {
+    color: var(--heading-color);
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+  }
+
+.laptop-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .laptop-info {
+    grid-template-columns: 1fr;
+  }
+}
+
+.specifications img {
+  width: 200%;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.specifications h3 {
+  color: var(--heading-color);
+  margin-bottom: 1px;
+  font-size: 1.5rem;
+}
+
+.specifications p {
+  margin-bottom: 6px;
+  font-size: 1.5rem;
+  color: var(--subtext-color);
+  text-align: left;
+}
+
+.specifications strong {
+  color: var(--heading-color);
+}
+
+.price-section {
+  text-align: center;
+  padding: 8px;
+  background: var(--accent-bg);
+  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 500px; /* Великий відступ, можливо варто зменшити */
+}
+
+  .price-section .price {
+    font-size: 2rem;
+    color: var(--danger-color);
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .price-section button {
+    background: var(--success-color);
+    color: white; 
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+    width: 100%;
+    max-width: 200px;
+  }
+
+    .price-section button:hover {
+      background: var(--success-hover);
+    }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  app-root {
+    padding: 15px;
+  }
+
+  .laptop-list {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .laptop-details {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  app-root h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Empty state styling */
+li:last-child {
+  color: var(--muted-text);
+  font-style: italic;
+  text-align: center;
+}
+
+/* Search Container Styles */
+.search-container {
+  text-align: center;
+  margin: 20px 0 30px 0;
+}
+
+  .search-container input {
+    width: 100%;
+    max-width: 500px;
+    padding: 15px 25px;
+    border: 2px solid var(--input-border);
+    border-radius: 30px;
+    font-size: 1.1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+  }
+
+    .search-container input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+    }
+
+    .search-container input::placeholder {
+      color: var(--muted-text);
+    }
+
+/* No results message */
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 40px;
+  color: var(--muted-text);
+  font-size: 1.2rem;
+  font-style: italic;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px var(--shadow-color);
+}

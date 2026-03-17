@@ -1,0 +1,52 @@
+<form [formGroup]="orderForm" (ngSubmit)="createOrder()">
+
+  @if (cart) {
+  <div class="cart-summary">
+    <h2>Your order</h2>
+    <ul>
+      @for (item of cart.items; track item.laptopId) {
+      <li>
+        {{ item.laptopName }} — {{ item.quantity }} х {{ item.price }} ₴ = <strong>{{ item.totalPrice }} ₴</strong>
+      </li>
+      }
+    </ul>
+    <h4>Grand Total: {{ cart.grandTotal }} ₴</h4>
+    <hr>
+  </div>
+  }
+
+  <h3>Contact Information</h3>
+  <input type="text" formControlName="phone" placeholder="Phone Number" />
+  <input type="email" formControlName="email" placeholder="Email Address" />
+  <div>
+    <label for="address">Shipping address:</label>
+    <div #addressContainer id="address-container" class="address-wrapper"></div>
+  </div>
+
+  <h3>Payment</h3>
+  <select formControlName="pay">
+    <option [ngValue]="0">Select payment method...</option>
+
+    @for (option of paymentOptions; track option.id) {
+    <option [ngValue]="option.id">{{ option.name }}</option>
+    }
+  </select>
+
+  @if (orderForm.get('pay')?.invalid && orderForm.get('pay')?.touched) {
+  <div class="error-text">
+    Select payment method first
+  </div>
+  }
+
+  <h3>Delivery</h3>
+  <select formControlName="delivery">
+    <option [ngValue]="0">Select delivery method...</option>
+
+    @for (option of deliveryOptions; track option.id) {
+    <option [ngValue]="option.id">{{ option.name }}</option>
+    }
+  </select>
+  <br />
+
+  <button type="submit" [disabled]="orderForm.invalid || orderForm.value.pay === 0 || orderForm.value.delivery === 0">Confirm</button>
+</form>

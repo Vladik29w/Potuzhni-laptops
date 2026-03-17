@@ -1,0 +1,18 @@
+<div *ngIf="laptop" class="laptop-details">
+  <h2>{{ laptop?.name }}</h2>
+
+  <div class="laptop-info">
+    <div class="specifications">
+      <img [src]="laptop.img" [alt]="laptop.name">
+      <h3>Details:</h3>
+      <p><strong>CPU:</strong> {{ laptop?.cpu}}</p>
+      <p><strong>RAM:</strong>{{laptop?.ram}} GB</p>
+      <p><strong>GPU:</strong>{{laptop.gpu}}</p>
+    </div>
+
+    <div class="price-section">
+      <p class="price">{{ laptop?.price }} грн</p>
+      <button (click)="addProduct()">Add to cart</button>
+    </div>
+  </div>
+</div>

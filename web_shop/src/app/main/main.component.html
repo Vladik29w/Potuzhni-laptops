@@ -1,0 +1,20 @@
+<div class="main-page">
+  <div class="search-container">
+    <form>
+      <input [formControl]="searchForm"
+             type="text"
+             placeholder="Search laptops by name...">
+    </form>
+  </div>
+  <div class="laptop-list">
+    <div *ngFor="let laptop of filteredLaptops" class="laptop-card">
+      <img [src]="laptop.img" [alt]="laptop.name" class="laptop-image">
+      <h3>{{ laptop.name }}</h3>
+      <p class="price">{{ laptop.price }}₴</p>
+      <a [routerLink]="['/details', laptop.id]" class="details-link">Details</a>
+    </div>
+    <div *ngIf="filteredLaptops.length === 0" class="no-results">
+      <p>No laptops found</p>
+    </div>
+  </div>
+</div>
