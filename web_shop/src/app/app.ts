@@ -1,6 +1,7 @@
 import { Component, Signal, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { CartService } from './services/cart.service';
+import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { CartDTO } from './DTO/cart-dto';
 
@@ -12,6 +13,7 @@ import { CartDTO } from './DTO/cart-dto';
   styleUrl: './app.css'
 })
 export class App {
+  private authService = inject(AuthService);
   private cartService = inject(CartService);
   cart: Signal<CartDTO | null> = this.cartService.cart;
   showCart: Signal<boolean> = this.cartService.showCart;
@@ -36,5 +38,7 @@ export class App {
         console.error('cart error:', err);
       }
     });
+    //get token
+    this.authService.checkUser().subscribe();
   }
 }

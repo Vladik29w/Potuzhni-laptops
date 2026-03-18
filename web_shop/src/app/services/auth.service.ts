@@ -12,23 +12,26 @@ export class AuthService {
   currentUser = signal<UserDTO | null>(null);
   constructor(private http: HttpClient) { }
 
-  private authenticate<T>(endpoint: 'login' | 'register', data: T): Observable<UserDTO> {
+  private authenticate<T>(endpoint: 'login' | 'register' | 'refresh', data: T): Observable<UserDTO> {
     return this.http.post<UserDTO>(`${this.url}/${endpoint}`, data).pipe(
       tap(user => this.currentUser.set(user))
     );
   }
-
   login(data: LoginDTO): Observable<UserDTO> {
     return this.authenticate('login', data);
   }
   register(data: RegisterDTO): Observable<UserDTO> {
     return this.authenticate('register', data);
   }
-
+  refresh(): Observable<UserDTO> {
+    return this.authenticate('refresh', {})
+  }
   checkUser(): Observable<UserDTO> {
     return this.http.get<UserDTO>(`${this.url}/me`).pipe(
       tap({
-        next: (user) => this.currentUser.set(user),
+        next: (user) => {
+          this.currentUser.set(user)
+          console.log(user) },
         error: () => this.currentUser.set(null)
       })
     );

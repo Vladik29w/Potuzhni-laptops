@@ -39,7 +39,7 @@ namespace LaptopServer.Controllers
         [HttpGet("me")]
         public ActionResult<UserDTO> GetActiveUser()
         {
-            var email = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)?.Value;
+            var email = User.FindFirstValue(ClaimTypes.Email)?? User.FindFirstValue(JwtRegisteredClaimNames.Email);
             if (string.IsNullOrEmpty(email)) return BadRequest();
             var roles = User.Claims
             .Where(c => c.Type == ClaimTypes.Role)
@@ -52,7 +52,7 @@ namespace LaptopServer.Controllers
             });
         }
         [HttpPost("refresh")]
-        public async Task<ActionResult> Refresh()
+        public async Task<ActionResult<UserDTO>> Refresh()
         {
             var refToken = Request.Cookies["refToken"];
             if (string.IsNullOrEmpty(refToken)) return Unauthorized();
