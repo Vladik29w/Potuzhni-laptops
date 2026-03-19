@@ -23,6 +23,17 @@ export class AuthService {
   register(data: RegisterDTO): Observable<UserDTO> {
     return this.authenticate('register', data);
   }
+  logout(): void {
+    this.http.post(`${this.url}/logout`, {}).subscribe({
+      next: () => {
+        this.currentUser.set(null);
+      },
+      error: (err) => {
+        this.currentUser.set(null);
+        console.error(err);
+      }
+    });
+  }
   refresh(): Observable<UserDTO> {
     return this.authenticate('refresh', {})
   }

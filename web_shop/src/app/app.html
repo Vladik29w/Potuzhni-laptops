@@ -37,8 +37,14 @@
   </div>
 </div>
 <div class="account">
+  @if (currentUser()) {
+  <span>{{ currentUser()?.email }}</span>
+  <br />
+  <button (click)="logout()">Logout</button>
+  } @else {
   <a [routerLink]="['/register']">Register</a>
   <br />
-  <a [routerLink]="['/login']">Loign</a>
+  <a [routerLink]="['/login']">Login</a>
+  }
 </div>
 <router-outlet></router-outlet>

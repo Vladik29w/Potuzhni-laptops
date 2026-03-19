@@ -36,6 +36,16 @@ namespace LaptopServer.Controllers
             return Ok(user);
         }
         [Authorize]
+        [HttpPost("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            var refToken = Request.Cookies["refToken"];
+            if (refToken == null) return BadRequest();
+            await _accountService.Logout(refToken);
+            ClearCookies();
+            return Ok();
+        }
+        [Authorize]
         [HttpGet("me")]
         public ActionResult<UserDTO> GetActiveUser()
         {
@@ -55,7 +65,7 @@ namespace LaptopServer.Controllers
         public async Task<ActionResult<UserDTO>> Refresh()
         {
             var refToken = Request.Cookies["refToken"];
-            if (string.IsNullOrEmpty(refToken)) return Unauthorized();
+            if (string.IsNullOrEmpty(refToken)) return BadRequest();
 
             var (user, token, refresh) = await _accountService.RefreshUserToken(refToken);
             if (user == null) return Unauthorized();
@@ -64,7 +74,7 @@ namespace LaptopServer.Controllers
             SetRefreshCookie(refresh);
             return Ok(user);
         }
-        private void SetCookie (string token)
+        private void SetCookie(string token)
         {
             var cookie = new CookieOptions
             {
@@ -85,6 +95,17 @@ namespace LaptopServer.Controllers
                 Expires = DateTime.UtcNow.AddDays(1),
             };
             Response.Cookies.Append("refToken", refToken, cookie);
+        }
+        private void ClearCookies()
+        {
+            var options = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            };
+            Response.Cookies.Delete("jwt", options);
+            Response.Cookies.Delete("refToken", options);
         }
     }
 }

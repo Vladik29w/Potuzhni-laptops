@@ -11,6 +11,7 @@ namespace LaptopServer.Service
         Task<(UserDTO, string, string)> UserRegister(RegisterDTO register);
         Task<(UserDTO, string, string)> UserLogin(LoginDTO login);
         Task<(UserDTO, string, string)> RefreshUserToken(string token);
+        Task Logout(string token);
     }
     public class AccountService : IAccountService
     {
@@ -83,6 +84,15 @@ namespace LaptopServer.Service
 
             var userDto = new UserDTO { Email = user.Email, Roles = roles.ToList() };
             return (userDto, newJwt, newRefresh);
+        }
+        public async Task Logout(string refToken)
+        {
+            var activeToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(t => t.Token == refToken);
+            if (activeToken != null)
+            {
+                _dbContext.RefreshTokens.Remove(activeToken);
+                await _dbContext.SaveChangesAsync();
+            }
         }
         private async Task<string> SetRefreshToken(string userId)
         {

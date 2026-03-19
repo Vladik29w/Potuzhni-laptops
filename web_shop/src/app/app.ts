@@ -15,6 +15,7 @@ import { CartDTO } from './DTO/cart-dto';
 export class App {
   private authService = inject(AuthService);
   private cartService = inject(CartService);
+  currentUser = this.authService.currentUser;
   cart: Signal<CartDTO | null> = this.cartService.cart;
   showCart: Signal<boolean> = this.cartService.showCart;
   clearCart(): void {
@@ -28,6 +29,9 @@ export class App {
   }
   closeCart(): void {
     this.cartService.closeCart();
+  }
+  logout(): void {
+    this.authService.logout();
   }
   ngOnInit() {
     this.cartService.getCart().subscribe({
