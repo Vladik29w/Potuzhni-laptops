@@ -1,17 +1,19 @@
-﻿using LaptopServer.DB;
+﻿using ErrorOr;
+using LaptopServer.DB;
 using LaptopServer.DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using NuGet.Common;
 
 namespace LaptopServer.Service
 {
     public interface IAccountService
     {
-        Task<(UserDTO, string, string)> UserRegister(RegisterDTO register);
-        Task<(UserDTO, string, string)> UserLogin(LoginDTO login);
-        Task<(UserDTO, string, string)> RefreshUserToken(string token);
-        Task Logout(string token);
+        Task<ErrorOr<UserTokensDTO>> UserRegister(RegisterDTO register);
+        Task<ErrorOr<UserTokensDTO>> UserLogin(LoginDTO login);
+        Task<ErrorOr<UserTokensDTO>> RefreshUserToken(string token);
+        Task<ErrorOr<Success>> UserLogout(string token);
     }
     public class AccountService : IAccountService
     {
@@ -26,7 +28,7 @@ namespace LaptopServer.Service
             _dbContext = dbContext;
         }
 
-        public async Task<(UserDTO, string, string)> UserRegister(RegisterDTO register)
+        public async Task<ErrorOr<UserTokensDTO>> UserRegister(RegisterDTO register)
         {
             var user = new IdentityUser
             {
@@ -34,65 +36,74 @@ namespace LaptopServer.Service
                 Email = register.Email,
             };
             var res = await _manager.CreateAsync(user, register.Password);
-            if (!res.Succeeded) return (null, null, null);
+            if (!res.Succeeded)
+            {
+                var errors = res.Errors
+                    .Select(e => Error.Validation(code: e.Code, description: e.Description))
+                    .ToList();
+                return errors;
+            }
             var roles = new List<string> { "User" };
             await _manager.AddToRoleAsync(user, roles[0]);
             var token = await _tokenService.GetTokenAsync(user);
-            var userDto = new UserDTO
-            {
-                Email = register.Email,
-                Roles = roles
-            };
+
             var refreshToken = await SetRefreshToken(user.Id);
-            return (userDto, token, refreshToken);
+            return new UserTokensDTO
+            {
+                User = new UserDTO { Email = register.Email!, Roles = roles },
+                Token = token,
+                RefrehToken = refreshToken,
+            };
         }
-        public async Task<(UserDTO, string, string)> UserLogin(LoginDTO login)
+        public async Task<ErrorOr<UserTokensDTO>> UserLogin(LoginDTO login)
         {
             var user = await _manager.FindByEmailAsync(login.Email);
-            if (user != null)
+            if (user == null)
+                return Error.NotFound(code: "UserNotFound");
+            var passwordValid = await _manager.CheckPasswordAsync(user, login.Password);
+            if (!passwordValid)
+                return Error.Validation(code: "InvalidPassword");
+            var roles = await _manager.GetRolesAsync(user);
+            var token = await _tokenService.GetTokenAsync(user);
+            var refreshToken = await SetRefreshToken(user.Id);
+            return new UserTokensDTO
             {
-                var passwordValid = await _manager.CheckPasswordAsync(user, login.Password);
-                if (passwordValid)
-                {
-                    var roles = await _manager.GetRolesAsync(user);
-                    var token = await _tokenService.GetTokenAsync(user);
-                    var userDto = new UserDTO
-                    {
-                        Email = login.Email,
-                        Roles = roles.ToList()
-                    };
-                    var refreshToken = await SetRefreshToken(user.Id);
-                    return (userDto, token, refreshToken);
-                }
-            }
-            return (null, null, null);
+                User = new UserDTO { Email = login.Email!, Roles = roles.ToList() },
+                Token = token,
+                RefrehToken = refreshToken,
+            };
         }
-        public async Task<(UserDTO, string, string)> RefreshUserToken(string token)
+        public async Task<ErrorOr<Success>> UserLogout(string refToken)
+        {
+            var activeToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(t => t.Token == refToken);
+            if (activeToken == null)
+                return Error.NotFound(code: "TokenNotFound");
+            _dbContext.RefreshTokens.Remove(activeToken);
+                await _dbContext.SaveChangesAsync();
+            return Result.Success;
+        }
+        public async Task<ErrorOr<UserTokensDTO>> RefreshUserToken(string token)
         {
             var curToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(t => t.Token == token && !t.IsUsed && !t.IsRevoked);
             if (curToken == null || curToken.Expires < DateTime.UtcNow)
-                return (null,null,null);
+                return Error.Unauthorized(code: "InvalidToken");
             var user = await _manager.FindByIdAsync(curToken.UserId);
             if (user == null)
-                return (null, null, null);
+                return Error.NotFound(code: "UserNotFound");
             curToken.IsUsed = true;
             _dbContext.RefreshTokens.Update(curToken);
-
+            await _dbContext.SaveChangesAsync();
             var roles = await _manager.GetRolesAsync(user);
             var newJwt = await _tokenService.GetTokenAsync(user);
             var newRefresh = await SetRefreshToken(user.Id);
 
-            var userDto = new UserDTO { Email = user.Email, Roles = roles.ToList() };
-            return (userDto, newJwt, newRefresh);
-        }
-        public async Task Logout(string refToken)
-        {
-            var activeToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(t => t.Token == refToken);
-            if (activeToken != null)
+            var userDto = new UserDTO { Email = user.Email!, Roles = roles.ToList() };
+            return new UserTokensDTO
             {
-                _dbContext.RefreshTokens.Remove(activeToken);
-                await _dbContext.SaveChangesAsync();
-            }
+                User = userDto,
+                Token = newJwt,
+                RefrehToken = newRefresh,
+            };
         }
         private async Task<string> SetRefreshToken(string userId)
         {

@@ -29,4 +29,12 @@ namespace LaptopServer.DTO
         public bool IsUsed { get; set; }
         public bool IsActive => !IsRevoked && !IsUsed && DateTime.UtcNow < Expires;
     }
+    public record UserTokensDTO
+    {
+        public UserDTO User { get; set; }
+        public required string Token {  get; set; }
+        public required string RefrehToken { get; set; }
+
+    }
+
 }
