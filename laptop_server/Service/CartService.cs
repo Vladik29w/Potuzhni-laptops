@@ -2,14 +2,15 @@
 using LaptopServer.DTO;
 using LaptopServer.Entities;
 using Microsoft.EntityFrameworkCore;
+using ErrorOr;
 
 namespace LaptopServer.Service
 {
     public interface ICartService
     {
         Task<CartDTO> GetCart(Guid cartId);
-        Task<CartDTO> AddToCart(Guid cartId, string laptopId);
-        Task<CartDTO> RemoveFromCart(Guid cartId, string laptopId);
+        Task<ErrorOr<CartDTO>> AddToCart(Guid cartId, string laptopId);
+        Task<ErrorOr<CartDTO>> RemoveFromCart(Guid cartId, string laptopId);
         Task<CartDTO> ClearCart(Guid cartId);
     }
     public class CartService : ICartService
@@ -41,7 +42,7 @@ namespace LaptopServer.Service
                 GrandTotal = cartItems.Sum(i => i.TotalPrice)
             };
         }
-        public async Task<CartDTO> AddToCart(Guid cartId, string laptopId)
+        public async Task<ErrorOr<CartDTO>> AddToCart(Guid cartId, string laptopId)
         {
             if (await _dbContext.Laptops.AnyAsync(i => i.Id == laptopId))
             {
@@ -61,9 +62,9 @@ namespace LaptopServer.Service
                 await _dbContext.SaveChangesAsync();
                 return await GetCart(cartId);
             }
-            else throw new KeyNotFoundException("Laptop not found");
+            else return Error.NotFound(code: "LaptopNotFound");
         }
-        public async Task<CartDTO> RemoveFromCart(Guid cartId, string laptopId)
+        public async Task<ErrorOr<CartDTO>> RemoveFromCart(Guid cartId, string laptopId)
         {
             var cartItem = await _dbContext.Carts.FirstOrDefaultAsync(c => c.CartId == cartId && c.LaptopId == laptopId);
             if (cartItem != null)
@@ -75,6 +76,7 @@ namespace LaptopServer.Service
 
                 await _dbContext.SaveChangesAsync();
             }
+            else return Error.NotFound(code: "CartItemNotFound");
             return await GetCart(cartId);
         }
         public async Task<CartDTO> ClearCart(Guid cartId)

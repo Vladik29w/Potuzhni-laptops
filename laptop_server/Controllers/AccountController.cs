@@ -24,7 +24,7 @@ namespace LaptopServer.Controllers
         {
             var userTokensDTO = await _accountService.UserRegister(register);
             if (userTokensDTO.IsError)
-                return Unauthorized(userTokensDTO.FirstError.Description);
+                return Unauthorized(userTokensDTO.FirstError.Code);
             return AuthLogic(userTokensDTO.Value);
         }
         [HttpPost("login")]
@@ -32,7 +32,7 @@ namespace LaptopServer.Controllers
         {
             var userTokensDTO = await _accountService.UserLogin(login);
             if (userTokensDTO.IsError)
-                return Unauthorized(userTokensDTO.FirstError.Description);
+                return Unauthorized(userTokensDTO.FirstError.Code);
 
             return AuthLogic(userTokensDTO.Value);
         }
