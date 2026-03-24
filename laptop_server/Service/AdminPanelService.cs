@@ -2,13 +2,14 @@
 using LaptopServer.DB;
 using LaptopServer.DTO;
 using LaptopServer.Entities;
+using LaptopServer.Mappers;
 
 namespace LaptopServer.Service
 {
     public interface IAdminPanelService
     {
-        Task<ErrorOr<LaptopDetailsDTO>> AddLaptop(LaptopDetailsDTO laptop);
-        Task<ErrorOr<bool>> UpdateLaptop(LaptopDetailsDTO laptop);
+        Task<ErrorOr<LaptopAdminDTO>> AddLaptop(LaptopAdminDTO laptop);
+        Task<ErrorOr<bool>> UpdateLaptop(LaptopAdminDTO laptop);
         Task<ErrorOr<bool>> DeleteLaptop(string id);
     }
     public class AdminPanelService : IAdminPanelService
@@ -18,23 +19,14 @@ namespace LaptopServer.Service
         {
             _dbContext = dbContext;
         }
-        public async Task<ErrorOr<LaptopDetailsDTO>> AddLaptop(LaptopDetailsDTO laptop)
+        public async Task<ErrorOr<LaptopAdminDTO>> AddLaptop(LaptopAdminDTO laptop)
         {
-            var newLaptop = new LaptopEntity
-            {
-                Id = laptop.Id,
-                Name = laptop.Name,
-                Price = laptop.Price,
-                Img = laptop.Img,
-                CPU = laptop.CPU,
-                RAM = laptop.RAM,
-                GPU = laptop.GPU
-            };
-            _dbContext.Add(newLaptop);
+            laptop.ToEntity();
+            _dbContext.Add(laptop);
             await _dbContext.SaveChangesAsync();
             return laptop;
         }
-        public async Task<ErrorOr<bool>> UpdateLaptop(LaptopDetailsDTO laptop)
+        public async Task<ErrorOr<bool>> UpdateLaptop(LaptopAdminDTO laptop)
         {
             var exLaptop = await _dbContext.Laptops.FindAsync(laptop.Id);
             if (exLaptop == null)

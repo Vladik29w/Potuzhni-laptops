@@ -1,6 +1,7 @@
 ﻿using LaptopServer.DB;
 using LaptopServer.DTO;
 using Microsoft.EntityFrameworkCore;
+using LaptopServer.Mappers;
 
 namespace LaptopServer.Service
 {
@@ -17,23 +18,15 @@ namespace LaptopServer.Service
 
         public LaptopService(LaptopsDBContext dbContext)
         {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _dbContext = dbContext;
         }
-
         public async Task<IEnumerable<LaptopMainDTO>> GetAllLaptops()
         {
             return await _dbContext.Laptops
-               .AsNoTracking()
-               .Select(laptop => new LaptopMainDTO
-               {
-                   Id = laptop.Id,
-                   Name = laptop.Name,
-                   Price = laptop.Price,
-                   Img = laptop.Img
-               })
-               .ToListAsync();
+                .AsNoTracking()
+                .ToMain()
+                .ToListAsync();
         }
-
         public async Task<LaptopDetailsDTO?> GetById(string id)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(id, nameof(id));
@@ -41,32 +34,14 @@ namespace LaptopServer.Service
             return await _dbContext.Laptops
                 .AsNoTracking()
                 .Where(l => l.Id == id)
-                .Select(laptop => new LaptopDetailsDTO
-                {
-                    Id = laptop.Id,
-                    Name = laptop.Name,
-                    Price = laptop.Price,
-                    Img = laptop.Img,
-                    CPU = laptop.CPU,
-                    RAM = laptop.RAM,
-                    GPU = laptop.GPU
-                })
+                .ToDetails()
                 .FirstOrDefaultAsync();
         }
         public async Task<IEnumerable<LaptopAdminDTO>> GetLaptopsAdmin()
         {
             return await _dbContext.Laptops
               .AsNoTracking()
-              .Select(laptop => new LaptopAdminDTO
-              {
-                  Id = laptop.Id,
-                  Name = laptop.Name,
-                  Price = laptop.Price,
-                  Img = laptop.Img,
-                  CPU = laptop.CPU,
-                  RAM = laptop.RAM,
-                  GPU = laptop.GPU
-              })
+              .ToAdmin()
               .ToListAsync();
         }
     }
