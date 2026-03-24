@@ -18,4 +18,14 @@
         public int RAM { get; init; } = 0;
         public string GPU { get; init; } = "gpu";
     }
+    public record LaptopAdminDTO
+    {
+        public required string Id { get; set; }
+        public required string Name { get; set; }
+        public required decimal Price { get; set; }
+        public required string Img { get; set; }
+        public required string CPU { get; set; }
+        public required int RAM { get; set; } 
+        public required string GPU { get; set; }
+    }
 }

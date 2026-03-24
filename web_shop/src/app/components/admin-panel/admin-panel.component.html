@@ -1,0 +1,111 @@
+<div class="admin-panel">
+
+  <section class="form-section">
+    <h2>
+      @if (isEdit()) {
+      Edit Laptop
+      } @else {
+      Add New Laptop
+      }
+    </h2>
+
+    <form [formGroup]="laptopForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="id">ID</label>
+          <input id="id" type="text" formControlName="id" [readOnly]="isEdit()" placeholder="Enter laptop ID">
+        </div>
+
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input id="name" type="text" formControlName="name" placeholder="Laptop Model">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="price">Price</label>
+          <input id="price" type="number" formControlName="price" min="1">
+        </div>
+
+        <div class="form-group">
+          <label for="img">Image URL</label>
+          <input id="img" type="text" formControlName="img" placeholder="https://...">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cpu">CPU</label>
+          <input id="cpu" type="text" formControlName="cpu" placeholder="e.g. Intel Core i7">
+        </div>
+
+        <div class="form-group">
+          <label for="ram">RAM (GB)</label>
+          <input id="ram" type="number" formControlName="ram" min="1">
+        </div>
+
+        <div class="form-group">
+          <label for="gpu">GPU</label>
+          <input id="gpu" type="text" formControlName="gpu" placeholder="e.g. RTX 4060">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="laptopForm.invalid">
+          @if (isEdit()) {
+          Update Laptop
+          } @else {
+          Save Laptop
+          }
+        </button>
+
+        @if (isEdit() || laptopForm.dirty) {
+        <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+        }
+      </div>
+    </form>
+  </section>
+
+  <hr>
+
+  <section class="list-section">
+    <h2>Laptop Inventory</h2>
+
+    <table class="laptop-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>CPU</th>
+          <th>RAM</th>
+          <th>GPU</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (laptop of _adminService.laptops(); track laptop.id) {
+        <tr>
+          <td>{{ laptop.id }}</td>
+          <td>{{ laptop.name }}</td>
+          <td>{{ laptop.price}}</td>
+          <td>{{ laptop.cpu }}</td>
+          <td>{{ laptop.ram }} GB</td>
+          <td>{{ laptop.gpu }}</td>
+          <td class="action-cells">
+            <button type="button" (click)="editLaptop(laptop)">Edit</button>
+            <button type="button" class="btn-danger" (click)="deleteLaptop(laptop.id)">Delete</button>
+          </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="7" class="text-center">No laptops found. Please add one above.</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+</div>

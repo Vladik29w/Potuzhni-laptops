@@ -6,7 +6,7 @@ namespace LaptopServer.Entities
     public class LaptopEntity
     {
         [MaxLength(256)]
-        public required string Id { get; init; }//це артикул
+        public required string Id { get; set; }//це артикул
         [MaxLength(512)]
         public required string Name { get; set; }
         [Precision(18, 2)]

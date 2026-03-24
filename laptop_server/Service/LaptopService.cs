@@ -8,6 +8,7 @@ namespace LaptopServer.Service
     {
         Task<IEnumerable<LaptopMainDTO>> GetAllLaptops();
         Task<LaptopDetailsDTO?> GetById(string id);
+        Task<IEnumerable<LaptopAdminDTO>> GetLaptopsAdmin();
     }
 
     public class LaptopService : ILaptopService
@@ -51,6 +52,22 @@ namespace LaptopServer.Service
                     GPU = laptop.GPU
                 })
                 .FirstOrDefaultAsync();
+        }
+        public async Task<IEnumerable<LaptopAdminDTO>> GetLaptopsAdmin()
+        {
+            return await _dbContext.Laptops
+              .AsNoTracking()
+              .Select(laptop => new LaptopAdminDTO
+              {
+                  Id = laptop.Id,
+                  Name = laptop.Name,
+                  Price = laptop.Price,
+                  Img = laptop.Img,
+                  CPU = laptop.CPU,
+                  RAM = laptop.RAM,
+                  GPU = laptop.GPU
+              })
+              .ToListAsync();
         }
     }
 }

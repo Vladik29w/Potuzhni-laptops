@@ -7,4 +7,9 @@
     <!-- Folder where production build objects will be placed -->
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\web_shop\browser\</BuildOutputFolder>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="C:\Users\Vlad\Desktop\admin-panel.component.html">
+      <Link>admin-panel.component.html</Link>
+    </None>
+  </ItemGroup>
 </Project>

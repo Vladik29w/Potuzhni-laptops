@@ -4,6 +4,7 @@ import { LaptopDetails } from './components/laptop-details/details.component';
 import { OrderComponent } from './components/order/order.component';
 import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
+import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
 
 export const routes: Routes = [
   {
@@ -31,5 +32,10 @@ export const routes: Routes = [
     path: 'login',
     component: LoginComponent,
     title: 'login'
-  }
+  },
+  {
+    path: 'admin',
+    component: AdminPanelComponent,
+    title: 'admin'
+  },
 ];
