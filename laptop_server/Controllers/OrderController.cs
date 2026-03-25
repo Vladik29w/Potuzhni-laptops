@@ -1,4 +1,5 @@
-﻿using LaptopServer.Enums;
+﻿using LaptopServer.DTO;
+using LaptopServer.Enums;
 using LaptopServer.Service;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,13 +14,19 @@ namespace LaptopServer.Controllers
         {
             _orderService = orderService;
         }
-        public record CheckoutRequest(Guid cartId, PayEnum pay, DeliveryEnum delivery, string phone, string email, string address);
+        public record CheckoutRequest(
+            Guid CartId,
+            PayEnum PayMethod,
+            DeliveryEnum DeliveryMethod,
+            string PhoneNumber,
+            string? Email,
+            string? ShippingAddress
+        );
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateOrder([FromBody] CheckoutRequest request)
+        public async Task<ActionResult<Guid>> CreateOrder([FromBody] CreateOrderDTO request)
         {
-            var order = await _orderService.CreateOrder
-                (request.cartId, request.pay, request.delivery, request.phone, request.email, request.address, HttpContext.RequestAborted);
-            return Ok(order);
+            var orderId = await _orderService.CreateOrder(request, HttpContext.RequestAborted);
+            return Ok(orderId);
         }
     }
 }

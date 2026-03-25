@@ -16,7 +16,7 @@ namespace LaptopServer.Controllers
             _adminPanelService = adminPanelService;
         }
         [HttpPost("laptop")]
-        public async Task<IActionResult> AddLaptop([FromBody] LaptopDetailsDTO laptop)
+        public async Task<IActionResult> AddLaptop([FromBody] LaptopAdminDTO laptop)
         {
             var result = await _adminPanelService.AddLaptop(laptop);
             if (result.IsError)
@@ -24,7 +24,7 @@ namespace LaptopServer.Controllers
             return CreatedAtAction(nameof(AddLaptop), new { id = result.Value.Id }, result.Value);
         }
         [HttpPut("laptop")]
-        public async Task<IActionResult> UpdateLaptop([FromBody] LaptopDetailsDTO laptop)
+        public async Task<IActionResult> UpdateLaptop([FromBody] LaptopAdminDTO laptop)
         {
             var result = await _adminPanelService.UpdateLaptop(laptop);
             if (result.IsError)
@@ -38,6 +38,12 @@ namespace LaptopServer.Controllers
             if (result.IsError)
                 return BadRequest(result.FirstError.Code);
             return NoContent();
+        }
+        [HttpGet("stats")]
+        public async Task<ActionResult<OrderStatsDTO>> GetOrderStats(int days)
+        {
+            var result = await _adminPanelService.GetOrderStats(days);
+            return Ok(result);
         }
     }
 }

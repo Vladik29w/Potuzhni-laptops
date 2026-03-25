@@ -13,11 +13,11 @@ export class OrderService {
   createOrder(pay: number, delivery: number, phone: string, email: string, address: string) {
     const body = {
       cartId: this.cartService.cartId,
-      pay: pay,
-      delivery: delivery,
-      phone: phone,
-      email: email,
-      address: address
+      payMethod: pay,            
+      deliveryMethod: delivery,  
+      phoneNumber: phone,        
+      email: email,              
+      shippingAddress: address   
     };
     return this.http.post<string>(this.url, body);
   }

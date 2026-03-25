@@ -1,13 +1,17 @@
-﻿using LaptopServer.DB;
+﻿using ErrorOr;
+using LaptopServer.DB;
+using LaptopServer.DTO;
 using LaptopServer.Entities;
-using LaptopServer.Enums;
+using LaptopServer.Mappers;
+using Microsoft.EntityFrameworkCore;
 
 namespace LaptopServer.Service
 {
     public interface IOrderService
     {
-        Task<Guid> CreateOrder
-            (Guid cartId, PayEnum pay, DeliveryEnum delivery, string phone, string email, string shippingAddress, CancellationToken cancellationToken = default);
+        Task<ErrorOr<Guid>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken cancellationToken = default);
+        Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId);
+        Task<List<OrderDTO>> GetAllOrders(); 
     }
 
     public class OrderService : IOrderService
@@ -21,17 +25,16 @@ namespace LaptopServer.Service
             _cartService = сartService;
         }
 
-        public async Task<Guid> CreateOrder
-            (Guid cartId, PayEnum pay, DeliveryEnum delivery, string phone, string email, string shippingAddress, CancellationToken cancellationToken = default)
+        public async Task<ErrorOr<Guid>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken cancellationToken = default)
         {
-            if (cartId == Guid.Empty)
-                throw new ArgumentException("Cart ID cannot be empty.", nameof(cartId));
+            if (creatingOrder.CartId == Guid.Empty)
+                return Error.Validation(code: "NullCartID");
 
-            var cart = await _cartService.GetCart(cartId);
+            var cart = await _cartService.GetCart(creatingOrder.CartId);
             if (cart == null)
-                throw new InvalidOperationException($"Cart with ID '{cartId}' not found.");
+                return Error.NotFound(code: "CartNotFound", description: $"Cart with ID '{creatingOrder.CartId}' not found.");
             if (cart.Items == null || !cart.Items.Any())
-                throw new InvalidOperationException("Cannot create an order from an empty cart.");
+                return Error.Failure(code: "EmptyCart");
             var orderItems = cart.Items.Select(item => new OrderItemEntity
             {
                 LaptopId = item.LaptopId,
@@ -43,17 +46,34 @@ namespace LaptopServer.Service
             {
                 Id = Guid.NewGuid(),
                 OrderItems = orderItems,
-                PayMethod = pay,
+                PayMethod = creatingOrder.PayMethod,
                 TotalPrice = cart.GrandTotal,
-                DeliveryMethod = delivery,
-                PhoneNumber = phone,
-                ShippingAddress = shippingAddress,
-                Email = email,
+                DeliveryMethod = creatingOrder.DeliveryMethod,
+                PhoneNumber = creatingOrder.PhoneNumber,
+                ShippingAddress = creatingOrder.ShippingAddress,
+                Email = creatingOrder.Email,
             };
             _dbContext.Add(order);
             await _dbContext.SaveChangesAsync(cancellationToken);
-            await _cartService.ClearCart(cartId);
+            await _cartService.ClearCart(creatingOrder.CartId);
             return order.Id;
+        }
+        public async Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId)
+        {
+
+            var order = await _dbContext.Orders
+                .AsNoTracking()
+                .Where(ord => ord.Id == orderId)
+                .ToOrder()
+                .FirstOrDefaultAsync();
+
+            if (order == null)
+                return Error.NotFound(code: "OrderNotFound");
+            return order;
+        }
+        public async Task<List<OrderDTO>> GetAllOrders()
+        {
+            return await _dbContext.Orders.AsNoTracking().ToOrder().ToListAsync();
         }
     }
 }

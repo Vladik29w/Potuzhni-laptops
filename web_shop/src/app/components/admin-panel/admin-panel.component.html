@@ -1,5 +1,19 @@
 <div class="admin-panel">
 
+  <section class="stats-section">
+    <div class="stats-header">
+      <h2>Sales</h2>
+      <div class="stats-filters">
+        <button type="button" (click)="changeStatsPeriod(7)" [class.active]="statDays() === 7">Week</button>
+        <button type="button" (click)="changeStatsPeriod(30)" [class.active]="statDays() === 30">Month</button>
+      </div>
+    </div>
+
+    <div class="chart-container" style="position: relative; height:40vh; width:100%">
+      <canvas id="salesChart"></canvas>
+    </div>
+  </section>
+
   <section class="form-section">
     <h2>
       @if (isEdit()) {
@@ -71,7 +85,7 @@
   <hr>
 
   <section class="list-section">
-    <h2>Laptop Inventory</h2>
+    <h2>Laptop storage</h2>
 
     <table class="laptop-table">
       <thead>

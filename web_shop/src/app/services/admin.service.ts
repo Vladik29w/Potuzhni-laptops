@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LaptopAdminDTO } from '../DTO/laptop-dto';
+import { OrderStatsDTO } from '../DTO/order-dto';
 import { LaptopService } from './laptop.service';
 
 @Injectable({
@@ -31,11 +32,14 @@ export class AdminService {
     if (laptop.id) {
       return this.http.put(`${this.url}/laptop`, laptop);
     } else {
-      return this.http.post(`${this.url}/laptop`, laptop);
+      return this.http.post<LaptopAdminDTO>(`${this.url}/laptop`, laptop);
     }
   }
 
   deleteLaptop(id: string) {
     return this.http.delete(`${this.url}/laptop/${id}`);
+  }
+  getOrderStats(days: number) {
+    return this.http.get<OrderStatsDTO[]>(`${this.url}/stats?days=${days}`);
   }
 }
