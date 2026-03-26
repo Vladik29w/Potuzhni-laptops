@@ -2,6 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CartItemDTO, CartDTO } from '../DTO/cart-dto'
 import { tap } from 'rxjs';
+import { environment } from '../../environments/environment.development'
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,7 @@ import { tap } from 'rxjs';
 export class CartService {
   //back
   private http = inject(HttpClient);
-  private url = 'https://localhost:7174/cart';
+  private readonly url = `${environment.apiUrl}/cart`;
   //cart
   private cartSignal = signal<CartDTO | null>(null);
   public  cart = this.cartSignal;

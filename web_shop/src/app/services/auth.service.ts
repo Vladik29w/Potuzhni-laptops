@@ -2,12 +2,14 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { UserDTO, RegisterDTO, LoginDTO } from '../DTO/account-dto';
+import { environment } from '../../environments/environment.development'
+
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private url = 'https://localhost:7174/account';
+  private readonly url = `${environment.apiUrl}/account`;
 
   currentUser = signal<UserDTO | null>(null);
   constructor(private http: HttpClient) { }

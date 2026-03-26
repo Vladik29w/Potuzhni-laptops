@@ -1,0 +1,23 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: laptop-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YYf_reiW_I1230f43!
+    ports:
+      - "1433:1433"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile     
+    container_name: laptop-server
+    depends_on:
+      - db
+    ports:
+      - "7174:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Server=db;Database=PotuzhniLaptopsDB;User Id=sa;Password=YYf_reiW_I1230f43!;TrustServerCertificate=True

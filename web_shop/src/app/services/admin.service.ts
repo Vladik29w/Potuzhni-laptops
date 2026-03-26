@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { LaptopAdminDTO } from '../DTO/laptop-dto';
 import { OrderStatsDTO } from '../DTO/order-dto';
 import { LaptopService } from './laptop.service';
+import { environment } from '../../environments/environment.development'
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,7 @@ export class AdminService {
   private http = inject(HttpClient);
   private _laptopService = inject(LaptopService);
 
-  private url = 'https://localhost:7174/AdminPanel';
+  private readonly url = `${environment.apiUrl}/AdminPanel`;
 
   public laptops = signal<LaptopAdminDTO[]>([]);
 

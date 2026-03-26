@@ -12,4 +12,7 @@
       <Link>admin-panel.component.html</Link>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\environments\" />
+  </ItemGroup>
 </Project>
