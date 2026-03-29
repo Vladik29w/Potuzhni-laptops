@@ -26,8 +26,7 @@ namespace LaptopServer.Entities
     public class OrderItemEntity
     {
         public int Id { get; init; }
-        [MaxLength(256)]
-        public required string LaptopId { get; init; }
+        public Guid LaptopId { get; init; }
         [MaxLength(512)]
         public required string LaptopName { get; init; }
         [Precision(18, 2)]

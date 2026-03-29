@@ -21,12 +21,11 @@ namespace LaptopServer.DTO
     public record OrderItemDTO
     {
         public int Id { get; init; }
-        public required string LaptopId { get; init; }
+        public Guid LaptopId { get; init; }
         public required string LaptopName { get; init; }
         public required decimal Price { get; init; }
         public int Quantity { get; init; } = 1;
         public Guid OrderId { get; init; }
-        public virtual OrderEntity Order { get; init; } = null!;
     }
     public record CreateOrderDTO
     {

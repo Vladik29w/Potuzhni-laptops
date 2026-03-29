@@ -1,11 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { AdminService } from '../../services/admin.service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LaptopAdminDTO } from '../../DTO/laptop-dto';
 import { OrderStatsDTO } from '../../DTO/order-dto';
 import { Chart, registerables } from 'chart.js';
 
-Chart.register(...registerables)
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-admin-panel.component',
@@ -14,22 +14,22 @@ Chart.register(...registerables)
   styleUrl: './admin-panel.component.css',
   standalone: true,
 })
-export class AdminPanelComponent {
+export class AdminPanelComponent implements OnInit {
   public _adminService = inject(AdminService);
   public _fb = inject(FormBuilder);
 
   public statChart: any;
   public statDays = signal(7);
 
-  public laptopForm = this._fb.group({
-    id: ['', Validators.required],
+  public laptopForm = this._fb.nonNullable.group({
+    id: [''],
     name: ['', Validators.required],
-    price: [1, Validators.required],
+    price: [1, [Validators.required, Validators.min(1)]],
     img: ['', Validators.required],
     cpu: ['', Validators.required],
-    ram: [1, Validators.required],
+    ram: [1, [Validators.required, Validators.min(1)]],
     gpu: ['', Validators.required]
-  })
+  });
 
   public isEdit = signal(false);
 
@@ -38,37 +38,52 @@ export class AdminPanelComponent {
   }
 
   onSubmit() {
-    if (this.laptopForm.invalid) return;
+    if (this.laptopForm.invalid) {
+      this.laptopForm.markAllAsTouched();
+      return;
+    }
 
-    const formValue = this.laptopForm.value as LaptopAdminDTO;
+    const formValue = this.laptopForm.getRawValue() as LaptopAdminDTO;
 
     this._adminService.saveLaptop(formValue).subscribe({
       next: () => {
         this._adminService.loadLaptops();
         this.resetForm();
+      },
+      error: (err) => {
+        console.error('Помилка при збереженні:', err);
       }
-    })
+    });
   }
+
   editLaptop(laptop: LaptopAdminDTO) {
     this.isEdit.set(true);
     this.laptopForm.patchValue(laptop);
   }
 
   deleteLaptop(id: string) {
-    if (!id) return
+    if (!id) return;
 
-    if (confirm('Are u sure ?')) {
+    if (confirm('Are u sure?')) {
       this._adminService.deleteLaptop(id).subscribe({
         next: () => {
           this._adminService.loadLaptops();
         }
-      })
+      });
     }
   }
 
   resetForm() {
     this.isEdit.set(false);
-    this.laptopForm.reset();
+    this.laptopForm.reset({
+      id: '',
+      name: '',
+      price: 1,
+      img: '',
+      cpu: '',
+      ram: 1,
+      gpu: ''
+    });
   }
 
   loadStats() {
@@ -78,10 +93,12 @@ export class AdminPanelComponent {
       }
     });
   }
+
   changeStatsPeriod(days: number) {
     this.statDays.set(days);
     this.loadStats();
   }
+
   renderChart(data: OrderStatsDTO[]) {
     if (this.statChart) {
       this.statChart.destroy();
@@ -122,6 +139,6 @@ export class AdminPanelComponent {
           y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } }
         }
       }
-    })
+    });
   }
 }

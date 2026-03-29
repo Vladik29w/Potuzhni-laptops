@@ -10,7 +10,7 @@ namespace LaptopServer.Service
     {
         Task<ErrorOr<LaptopAdminDTO>> AddLaptop(LaptopAdminDTO laptop);
         Task<ErrorOr<Updated>> UpdateLaptop(LaptopAdminDTO laptop);
-        Task<ErrorOr<Deleted>> DeleteLaptop(string id);
+        Task<ErrorOr<Deleted>> DeleteLaptop(Guid id);
         Task<List<OrderStatsDTO>> GetOrderStats(int days);
     }
     public class AdminPanelService : IAdminPanelService
@@ -22,6 +22,9 @@ namespace LaptopServer.Service
         }
         public async Task<ErrorOr<LaptopAdminDTO>> AddLaptop(LaptopAdminDTO laptop)
         {
+            if (laptop.Id == Guid.Empty)
+                laptop.Id = Guid.NewGuid();
+
             var entity = laptop.ToEntity();
             _dbContext.Add(entity);
             await _dbContext.SaveChangesAsync();
@@ -43,14 +46,12 @@ namespace LaptopServer.Service
             await _dbContext.SaveChangesAsync();
             return Result.Updated;
         }
-        public async Task<ErrorOr<Deleted>> DeleteLaptop(string id)
+        public async Task<ErrorOr<Deleted>> DeleteLaptop(Guid id)
         {
-            var exLaptop = await _dbContext.Laptops.FindAsync(id);
-            if (exLaptop == null)
+            var deletedCount = await _dbContext.Laptops.Where(l => l.Id == id).ExecuteDeleteAsync();
+            if (deletedCount == 0)
                 return Error.NotFound(code: "LaptopNotFound");
 
-            _dbContext.Laptops.Remove(exLaptop);
-            await _dbContext.SaveChangesAsync();
             return Result.Deleted;
         }
         public async Task<List<OrderStatsDTO>> GetOrderStats(int days)

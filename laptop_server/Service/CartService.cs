@@ -9,8 +9,8 @@ namespace LaptopServer.Service
     public interface ICartService
     {
         Task<CartDTO> GetCart(Guid cartId);
-        Task<ErrorOr<CartDTO>> AddToCart(Guid cartId, string laptopId);
-        Task<ErrorOr<CartDTO>> RemoveFromCart(Guid cartId, string laptopId);
+        Task<ErrorOr<CartDTO>> AddToCart(Guid cartId, Guid laptopId);
+        Task<ErrorOr<CartDTO>> RemoveFromCart(Guid cartId, Guid laptopId);
         Task<CartDTO> ClearCart(Guid cartId);
     }
     public class CartService : ICartService
@@ -42,7 +42,7 @@ namespace LaptopServer.Service
                 GrandTotal = cartItems.Sum(i => i.TotalPrice)
             };
         }
-        public async Task<ErrorOr<CartDTO>> AddToCart(Guid cartId, string laptopId)
+        public async Task<ErrorOr<CartDTO>> AddToCart(Guid cartId, Guid laptopId)
         {
             if (await _dbContext.Laptops.AnyAsync(i => i.Id == laptopId))
             {
@@ -64,7 +64,7 @@ namespace LaptopServer.Service
             }
             else return Error.NotFound(code: "LaptopNotFound");
         }
-        public async Task<ErrorOr<CartDTO>> RemoveFromCart(Guid cartId, string laptopId)
+        public async Task<ErrorOr<CartDTO>> RemoveFromCart(Guid cartId, Guid laptopId)
         {
             var cartItem = await _dbContext.Carts.FirstOrDefaultAsync(c => c.CartId == cartId && c.LaptopId == laptopId);
             if (cartItem != null)

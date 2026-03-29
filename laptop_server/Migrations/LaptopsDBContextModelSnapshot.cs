@@ -27,9 +27,8 @@ namespace LaptopServer.Migrations
                     b.Property<Guid>("CartId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("LaptopId")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<Guid>("LaptopId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -43,9 +42,9 @@ namespace LaptopServer.Migrations
 
             modelBuilder.Entity("LaptopServer.Entities.LaptopEntity", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CPU")
                         .HasMaxLength(128)
@@ -121,10 +120,8 @@ namespace LaptopServer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("LaptopId")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<Guid>("LaptopId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LaptopName")
                         .IsRequired()

@@ -21,7 +21,7 @@ namespace LaptopServer.Controllers
             return Ok(laptops);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<LaptopDetailsDTO>> GetById(string id)
+        public async Task<ActionResult<LaptopDetailsDTO>> GetById(Guid id)
         {
             var laptop = await _laptopService.GetById(id);
             if (laptop == null)

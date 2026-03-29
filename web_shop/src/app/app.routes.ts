@@ -5,6 +5,7 @@ import { OrderComponent } from './components/order/order.component';
 import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
+import { adminGuard } from './adminGuard';
 
 export const routes: Routes = [
   {
@@ -36,6 +37,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminPanelComponent,
-    title: 'admin'
+    title: 'admin',
+    canActivate: [adminGuard]
   },
 ];

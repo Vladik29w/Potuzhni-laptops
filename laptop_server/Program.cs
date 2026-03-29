@@ -101,6 +101,10 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
+    var dbContext = scope.ServiceProvider.GetRequiredService<LaptopsDBContext>();
+
+    await dbContext.Database.MigrateAsync();
+
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
     string[] roleNames = { "Admin", "User" };

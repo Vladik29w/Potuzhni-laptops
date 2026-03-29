@@ -8,7 +8,7 @@ namespace LaptopServer.Service
     public interface ILaptopService
     {
         Task<IEnumerable<LaptopMainDTO>> GetAllLaptops();
-        Task<LaptopDetailsDTO?> GetById(string id);
+        Task<LaptopDetailsDTO?> GetById(Guid id);
         Task<IEnumerable<LaptopAdminDTO>> GetLaptopsAdmin();
     }
 
@@ -27,10 +27,8 @@ namespace LaptopServer.Service
                 .ToMain()
                 .ToListAsync();
         }
-        public async Task<LaptopDetailsDTO?> GetById(string id)
+        public async Task<LaptopDetailsDTO?> GetById(Guid id)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(id, nameof(id));
-
             return await _dbContext.Laptops
                 .AsNoTracking()
                 .Where(l => l.Id == id)

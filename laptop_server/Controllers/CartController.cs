@@ -28,7 +28,7 @@ namespace LaptopServer.Controllers
             return Ok(updCart);
         }
         [HttpPost("{cartId}/{laptopId}")]
-        public async Task<ActionResult<CartDTO>> AddToCart(Guid cartId, string laptopId)
+        public async Task<ActionResult<CartDTO>> AddToCart(Guid cartId, Guid laptopId)
         {
             var result = await _cartService.AddToCart(cartId, laptopId);
             if (result.IsError)
@@ -36,7 +36,7 @@ namespace LaptopServer.Controllers
             return Ok(result.Value);
         }
         [HttpDelete("{cartId}/{laptopId}")]
-        public async Task<ActionResult<CartDTO>> RemoveFromCart(Guid cartId, string laptopId)
+        public async Task<ActionResult<CartDTO>> RemoveFromCart(Guid cartId, Guid laptopId)
         {
             var result = await _cartService.RemoveFromCart(cartId, laptopId);
             if (result.IsError)

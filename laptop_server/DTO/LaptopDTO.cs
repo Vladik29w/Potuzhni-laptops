@@ -2,7 +2,7 @@
 {
     public record LaptopMainDTO
     {
-        public required string Id { get; init; }
+        public required Guid Id { get; init; }
         public required string Name { get; init; }
         public decimal Price { get; init; } = 0;
         public required string Img { get; init; }
@@ -10,7 +10,7 @@
 
     public record LaptopDetailsDTO
     {
-        public required string Id { get; init; }
+        public required Guid Id { get; init; }
         public required string Name { get; init; }
         public decimal Price { get; init; } = 0;
         public string Img { get; init; } = "maybe img placeholder?";
@@ -20,7 +20,7 @@
     }
     public record LaptopAdminDTO
     {
-        public required string Id { get; set; }
+        public required Guid Id { get; set; }
         public required string Name { get; set; }
         public required decimal Price { get; set; }
         public required string Img { get; set; }

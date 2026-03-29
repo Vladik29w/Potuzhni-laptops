@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaptopServer.Migrations
 {
     [DbContext(typeof(LaptopsDBContext))]
-    [Migration("20260317162208_RefreshToken")]
-    partial class RefreshToken
+    [Migration("20260329214546_LaptopIdGuid")]
+    partial class LaptopIdGuid
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.12")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -30,9 +30,8 @@ namespace LaptopServer.Migrations
                     b.Property<Guid>("CartId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("LaptopId")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<Guid>("LaptopId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -46,9 +45,9 @@ namespace LaptopServer.Migrations
 
             modelBuilder.Entity("LaptopServer.Entities.LaptopEntity", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CPU")
                         .HasMaxLength(128)
@@ -84,6 +83,9 @@ namespace LaptopServer.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("DeliveryMethod")
                         .HasColumnType("int");
@@ -121,10 +123,8 @@ namespace LaptopServer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("LaptopId")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<Guid>("LaptopId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LaptopName")
                         .IsRequired()

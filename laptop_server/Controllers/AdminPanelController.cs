@@ -32,7 +32,7 @@ namespace LaptopServer.Controllers
             return Ok();
         }
         [HttpDelete("laptop/{id}")]
-        public async Task<IActionResult> DeleteLaptop(string id)
+        public async Task<IActionResult> DeleteLaptop(Guid id)
         {
             var result = await _adminPanelService.DeleteLaptop(id);
             if (result.IsError)

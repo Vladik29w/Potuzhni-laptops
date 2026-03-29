@@ -28,10 +28,11 @@ export class AdminService {
   }
 
   saveLaptop(laptop: LaptopAdminDTO) {
-    
-    if (laptop.id) {
+
+    if (laptop.id && laptop.id !== '00000000-0000-0000-0000-000000000000' && laptop.id !== '') {
       return this.http.put(`${this.url}/laptop`, laptop);
     } else {
+      laptop.id = '00000000-0000-0000-0000-000000000000';
       return this.http.post<LaptopAdminDTO>(`${this.url}/laptop`, laptop);
     }
   }
