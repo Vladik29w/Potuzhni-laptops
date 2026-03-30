@@ -28,8 +28,4 @@
     <PackageReference Include="Scalar.AspNetCore.Microsoft" Version="2.13.13" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>
