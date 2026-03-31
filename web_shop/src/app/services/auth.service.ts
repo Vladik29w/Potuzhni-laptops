@@ -2,12 +2,13 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { UserDTO, RegisterDTO, LoginDTO } from '../DTO/account-dto';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private url = 'https://localhost:7174/account';
+  private url = `${environment.apiUrl}${environment.endpoints.account}`;
 
   currentUser = signal<UserDTO | null>(null);
   constructor(private http: HttpClient) { }

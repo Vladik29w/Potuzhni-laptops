@@ -25,7 +25,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngularOrigin",
         policy =>
         {
-            policy.WithOrigins("https://localhost:50292")
+            policy.WithOrigins("https://localhost:50292", "https://potuzhni-laptops-atbmfyb4hafdhyb4.polandcentral-01.azurewebsites.net")
             .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
         }
         );
