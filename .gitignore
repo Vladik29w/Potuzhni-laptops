@@ -1,6 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/angular,aspnetcore,dotnetcore,visualstudio,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=angular,aspnetcore,dotnetcore,visualstudio,windows
-
+**/appsettings.json
+laptop_server/appsettings.json
 ### Angular ###
 ## Angular ##
 # compiled output
