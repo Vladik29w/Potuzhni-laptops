@@ -36,11 +36,8 @@ namespace LaptopServer.Service
             var roles = await _userManager.GetRolesAsync(user);
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            var secretKey = _config["JwtSetting:Key"];
-            if (string.IsNullOrEmpty(secretKey))
-            {
-                throw new InvalidOperationException("JWT Secret Key is not configured.");
-            }
+            var secretKey = _config["JwtSetting:Key"] ?? throw new InvalidOperationException("JWT Secret Key is not configured.");
+            
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

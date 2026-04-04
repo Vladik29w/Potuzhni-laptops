@@ -1,6 +1,6 @@
 ﻿using Azure;
 
-namespace LaptopServer.Infrastructure
+namespace LaptopServer.Infrastructure.Extensions
 {
     public static class CookieExtension
     {

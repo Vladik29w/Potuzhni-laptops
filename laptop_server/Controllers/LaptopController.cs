@@ -9,7 +9,7 @@ namespace LaptopServer.Controllers
     [Route("[controller]")]
     public class LaptopController : ControllerBase
     {
-        private readonly ILaptopService _laptopService = null!;
+        private readonly ILaptopService _laptopService;
         public LaptopController(ILaptopService laptopService)
         {
             _laptopService = laptopService;

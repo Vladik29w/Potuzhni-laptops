@@ -1,5 +1,4 @@
 ﻿using LaptopServer.DTO;
-using LaptopServer.Infrastructure;
 using LaptopServer.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +6,7 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ErrorOr;
+using LaptopServer.Infrastructure.Extensions;
 
 namespace LaptopServer.Controllers
 {

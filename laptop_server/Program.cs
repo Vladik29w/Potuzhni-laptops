@@ -1,4 +1,5 @@
 using LaptopServer.DB;
+using LaptopServer.Infrastructure.API;
 using LaptopServer.Mappers;
 using LaptopServer.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,6 +20,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAdminPanelService, AdminPanelService>();
+builder.Services.AddHttpClient<INovaPostService, NovaPostService>();
 //CORS
 builder.Services.AddCors(options =>
 {

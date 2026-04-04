@@ -14,14 +14,6 @@ namespace LaptopServer.Controllers
         {
             _orderService = orderService;
         }
-        public record CheckoutRequest(
-            Guid CartId,
-            PayEnum PayMethod,
-            DeliveryEnum DeliveryMethod,
-            string PhoneNumber,
-            string? Email,
-            string? ShippingAddress
-        );
         [HttpPost]
         public async Task<ActionResult<Guid>> CreateOrder([FromBody] CreateOrderDTO request)
         {

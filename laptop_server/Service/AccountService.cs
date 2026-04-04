@@ -44,7 +44,7 @@ namespace LaptopServer.Service
                 return errors;
             }
             var roles = new List<string> { "User", "Admin" };
-            await _manager.AddToRoleAsync(user, roles[1]);//потом назад на юзера поміняй
+            await _manager.AddToRoleAsync(user, roles[0]);
             var token = await _tokenService.GetTokenAsync(user);
 
             var refreshToken = await SetRefreshToken(user.Id);
