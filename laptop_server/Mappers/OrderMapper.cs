@@ -1,12 +1,27 @@
-﻿using LaptopServer.Entities;
-using LaptopServer.DTO;
+﻿using LaptopServer.DTO;
+using LaptopServer.Entities;
 using Riok.Mapperly.Abstractions;
 
-namespace LaptopServer.Mappers
+[Mapper]
+public static partial class OrderMapper
 {
-    [Mapper]
-    public static partial class OrderMapper
+    public static partial IQueryable<OrderDTO> ToOrder(this IQueryable<OrderEntity> entity);
+
+    public static OrderEntity ToOrderEntity(CreateOrderDTO creatingOrder, CartDTO cart)
     {
-        public static partial IQueryable<OrderDTO> ToOrder(this IQueryable<OrderEntity> entity);
+        var order = Map(creatingOrder);
+
+        order.Id = Guid.NewGuid();
+        order.TotalPrice = cart.GrandTotal;
+        order.OrderItems = ToOrderItems(cart.Items);
+
+        return order;
     }
+    private static partial List<OrderItemEntity> ToOrderItems(List<CartItemDTO> items);
+    private static partial OrderItemEntity MapItem(CartItemDTO item);
+
+    [MapperIgnoreTarget(nameof(OrderEntity.Id))]
+    [MapperIgnoreTarget(nameof(OrderEntity.OrderItems))]
+    [MapperIgnoreTarget(nameof(OrderEntity.TotalPrice))]
+    private static partial OrderEntity Map(CreateOrderDTO creatingOrder);
 }

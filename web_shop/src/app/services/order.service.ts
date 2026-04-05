@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { CartService } from './cart.service';
 import { environment } from '../../environments/environment';
+import { CreateOrderDTO } from '../DTO/order-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -12,14 +13,17 @@ export class OrderService {
 
   private cartService = inject(CartService);
 
-  createOrder(pay: number, delivery: number, phone: string, email: string, address: string) {
+  createOrder(order: CreateOrderDTO) {
     const body = {
       cartId: this.cartService.cartId,
-      payMethod: pay,            
-      deliveryMethod: delivery,  
-      phoneNumber: phone,        
-      email: email,              
-      shippingAddress: address   
+      payMethod: order.payMethod,
+      deliveryMethod: order.deliveryMethod,
+      phoneNumber: order.phoneNumber,
+      email: order.email,
+      deliveryCityRef: order.deliveryCityRef,
+      deliveryCityName: order.deliveryCityName,
+      deliveryWarehouseRef: order.deliveryWarehouseRef,
+      deliveryWarehouseName: order.deliveryWarehouseName
     };
     return this.http.post<string>(this.url, body);
   }

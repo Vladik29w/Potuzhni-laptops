@@ -13,6 +13,5 @@
         Unknown = 0,
         Pickup = 1,
         NovaPost = 2,
-        UkrPost = 3,
     }
 }

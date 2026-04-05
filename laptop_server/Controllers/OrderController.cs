@@ -15,10 +15,12 @@ namespace LaptopServer.Controllers
             _orderService = orderService;
         }
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateOrder([FromBody] CreateOrderDTO request)
+        public async Task<ActionResult<Guid>> CreateOrder(CreateOrderDTO order)
         {
-            var orderId = await _orderService.CreateOrder(request, HttpContext.RequestAborted);
-            return Ok(orderId);
+            var res = await _orderService.CreateOrder(order, HttpContext.RequestAborted);
+            if (res.IsError)
+                return BadRequest(res.FirstError.Code);
+            return Ok(res.Value);
         }
     }
 }

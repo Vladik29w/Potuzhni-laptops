@@ -13,7 +13,6 @@ namespace LaptopServer.Service
         Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId);
         Task<List<OrderDTO>> GetAllOrders(); 
     }
-
     public class OrderService : IOrderService
     {
         private readonly ICartService _cartService;
@@ -24,7 +23,6 @@ namespace LaptopServer.Service
             _dbContext = dbContext;
             _cartService = сartService;
         }
-
         public async Task<ErrorOr<Guid>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken cancellationToken = default)
         {
             if (creatingOrder.CartId == Guid.Empty)
@@ -42,17 +40,7 @@ namespace LaptopServer.Service
                 Price = item.Price,
                 Quantity = item.Quantity,
             }).ToList();
-            var order = new OrderEntity
-            {
-                Id = Guid.NewGuid(),
-                OrderItems = orderItems,
-                PayMethod = creatingOrder.PayMethod,
-                TotalPrice = cart.GrandTotal,
-                DeliveryMethod = creatingOrder.DeliveryMethod,
-                PhoneNumber = creatingOrder.PhoneNumber,
-                ShippingAddress = creatingOrder.ShippingAddress,
-                Email = creatingOrder.Email,
-            };
+            var order = OrderMapper.ToOrderEntity(creatingOrder, cart);
             _dbContext.Add(order);
             await _dbContext.SaveChangesAsync(cancellationToken);
             await _cartService.ClearCart(creatingOrder.CartId);

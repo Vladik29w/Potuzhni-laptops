@@ -15,7 +15,10 @@ namespace LaptopServer.DTO
         public DeliveryEnum DeliveryMethod { get; set; } = DeliveryEnum.Unknown;
         public required string PhoneNumber { get; set; }
         public string? Email { get; set; }
-        public string? ShippingAddress { get; set; }
+        public string? DeliveryCityRef { get; set; }
+        public string? DeliveryCityName { get; set; }
+        public string? DeliveryWarehouseRef { get; set; }
+        public string? DeliveryWarehouseName { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
     public record OrderItemDTO
@@ -34,7 +37,10 @@ namespace LaptopServer.DTO
         public DeliveryEnum DeliveryMethod { get; init; }
         public required string PhoneNumber { get; init; }
         public string? Email { get; set; }
-        public string? ShippingAddress { get; set; }
+        public string? DeliveryCityRef { get; set; }
+        public string? DeliveryCityName { get; set; }
+        public string? DeliveryWarehouseRef { get; set; }
+        public string? DeliveryWarehouseName { get; set; }
     }
     public record OrderStatsDTO(DateTime Date, int Quantity, decimal Sum);
 }

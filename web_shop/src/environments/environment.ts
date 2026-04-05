@@ -6,6 +6,7 @@ export const environment = {
     account: '/account',
     adminPanel: '/AdminPanel',
     cart: '/cart',
-    order: '/order'
+    order: '/order',
+    novaPost: '/novapost'
   }
 };
