@@ -10,7 +10,6 @@ import { CartDTO } from './DTO/cart-dto';
   templateUrl: './app.html',
   standalone: true,
   imports: [RouterOutlet, RouterLink, CommonModule],
-  styleUrl: './app.css'
 })
 export class App {
   private authService = inject(AuthService);

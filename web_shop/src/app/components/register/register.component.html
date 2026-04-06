@@ -1,50 +1,57 @@
-<div class="register-container">
-  <h2>Register</h2>
+<div class="min-h-[calc(100vh-6rem)] bg-surface-light">
+  <div class="mx-auto max-w-md px-4 py-10">
+    <div class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
+      <div class="mb-6">
+        <h2 class="text-2xl font-extrabold tracking-tight text-text-main">Register</h2>
+        <p class="mt-1 text-sm text-text-muted">Create an account to place orders faster.</p>
+      </div>
 
-  @if (error()) {
-  <div class="error-alert">
-    {{ error() }}
+      @if (error()) {
+      <div class="mb-4 rounded-card border border-status-error-text/20 bg-status-error-bg px-4 py-3 text-sm text-status-error-text">
+        {{ error() }}
+      </div>
+      }
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        <div>
+          <label for="name">Name</label>
+          <input id="name" type="text" formControlName="name" placeholder="Enter your name">
+          @if (registerForm.controls.name.touched && registerForm.controls.name.errors?.['required']) {
+          <div class="mt-1 text-xs text-status-error-text">Name is required.</div>
+          }
+        </div>
+
+        <div>
+          <label for="email">Email</label>
+          <input id="email" type="email" formControlName="email" placeholder="Enter your email">
+          @if (registerForm.controls.email.touched && registerForm.controls.email.errors?.['required']) {
+          <div class="mt-1 text-xs text-status-error-text">Email is required.</div>
+          }
+          @if (registerForm.controls.email.touched && registerForm.controls.email.errors?.['email']) {
+          <div class="mt-1 text-xs text-status-error-text">Please enter a valid email address.</div>
+          }
+        </div>
+
+        <div>
+          <label for="password">Password</label>
+          <input id="password" type="password" formControlName="password" placeholder="Create a password">
+          @if (registerForm.controls.password.touched && registerForm.controls.password.errors?.['minlength']) {
+          <div class="mt-1 text-xs text-status-error-text">Password must be at least 6 characters long.</div>
+          }
+        </div>
+
+        <div>
+          <label for="confirmPassword">Confirm Password</label>
+          <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Repeat your password">
+          @if (registerForm.touched && registerForm.errors?.['passwordsMismatch']) {
+          <div class="mt-1 text-xs text-status-error-text">Passwords do not match.</div>
+          }
+        </div>
+
+        <button class="inline-flex w-full items-center justify-center rounded-button bg-brand-secondary px-4 py-2 text-sm font-bold uppercase tracking-wider text-surface-white transition-colors hover:bg-brand-secondary-hover disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3 md:text-base" type="submit" [disabled]="isLoading()">
+          {{ isLoading() ? 'Registering...' : 'Register' }}
+        </button>
+      </form>
+    </div>
   </div>
-  }
-
-  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="name">Name</label>
-      <input id="name" type="text" formControlName="name" placeholder="Enter your name">
-      @if (registerForm.controls.name.touched && registerForm.controls.name.errors?.['required']) {
-      <small class="error-text">Name is required.</small>
-      }
-    </div>
-
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input id="email" type="email" formControlName="email" placeholder="Enter your email">
-      @if (registerForm.controls.email.touched && registerForm.controls.email.errors?.['required']) {
-      <small class="error-text">Email is required.</small>
-      }
-      @if (registerForm.controls.email.touched && registerForm.controls.email.errors?.['email']) {
-      <small class="error-text">Please enter a valid email address.</small>
-      }
-    </div>
-
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" type="password" formControlName="password" placeholder="Create a password">
-      @if (registerForm.controls.password.touched && registerForm.controls.password.errors?.['minlength']) {
-      <small class="error-text">Password must be at least 6 characters long.</small>
-      }
-    </div>
-
-    <div class="form-group">
-      <label for="confirmPassword">Confirm Password</label>
-      <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Repeat your password">
-      @if (registerForm.touched && registerForm.errors?.['passwordsMismatch']) {
-      <small class="error-text">Passwords do not match.</small>
-      }
-    </div>
-
-    <button type="submit" [disabled]="isLoading()">
-      {{ isLoading() ? 'Registering...' : 'Register' }}
-    </button>
-  </form>
 </div>

@@ -11,7 +11,6 @@ Chart.register(...registerables);
   selector: 'app-admin-panel.component',
   imports: [ReactiveFormsModule],
   templateUrl: './admin-panel.component.html',
-  styleUrl: './admin-panel.component.css',
   standalone: true,
 })
 export class AdminPanelComponent implements OnInit {

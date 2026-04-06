@@ -1,20 +1,33 @@
-<div class="main-page">
-  <div class="search-container">
-    <form>
-      <input [formControl]="searchForm"
-             type="text"
-             placeholder="Search laptops by name...">
-    </form>
-  </div>
-  <div class="laptop-list">
-    <div *ngFor="let laptop of filteredLaptops" class="laptop-card">
-      <img [src]="laptop.img" [alt]="laptop.name" class="laptop-image">
-      <h3>{{ laptop.name }}</h3>
-      <p class="price">{{ laptop.price }}₴</p>
-      <a [routerLink]="['/details', laptop.id]" class="details-link">Details</a>
+<div class="bg-surface-light py-8">
+  <div class="mx-auto max-w-7xl space-y-6 px-4">
+    <div class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
+      <form>
+        <input
+          [formControl]="searchForm"
+          type="text"
+          placeholder="Search laptops by name...">
+      </form>
     </div>
-    <div *ngIf="filteredLaptops.length === 0" class="no-results">
-      <p>No laptops found</p>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div *ngFor="let laptop of filteredLaptops" class="flex h-full flex-col rounded-card bg-surface-white p-4 shadow-card md:p-6">
+        <div class="aspect-[4/3] overflow-hidden rounded-card border border-border-default bg-surface-light">
+          <img [src]="laptop.img" [alt]="laptop.name" class="h-full w-full object-contain">
+        </div>
+
+        <h3 class="mt-4 text-lg font-bold text-text-main">{{ laptop.name }}</h3>
+        <p class="mt-1 text-xl font-extrabold text-text-main">{{ laptop.price }}₴</p>
+
+        <a
+          [routerLink]="['/details', laptop.id]"
+          class="mt-4 inline-flex items-center justify-center rounded-button bg-brand-secondary px-4 py-2 text-sm font-bold uppercase tracking-wider text-surface-white transition-colors hover:bg-brand-secondary-hover md:px-6 md:py-3 md:text-base">
+          Details
+        </a>
+      </div>
+    </div>
+
+    <div *ngIf="filteredLaptops.length === 0" class="rounded-card border border-dashed border-border-default bg-surface-white px-4 py-10 text-center shadow-card">
+      <p class="text-sm font-medium text-text-muted">No laptops found</p>
     </div>
   </div>
 </div>

@@ -1,50 +1,96 @@
-<h1>Potuzhni Laptops</h1>
+<div class="min-h-screen bg-surface-light text-text-main">
+  <header class="bg-brand-navy text-surface-white">
+    <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <h1 class="text-2xl font-extrabold tracking-tight">Potuzhni Laptops</h1>
 
-@if (!showCart()) {
-<button class="cart-toggle-btn" (click)="openCart()">Open cart</button>
-}
+      <div class="text-sm">
+        @if (currentUser()) {
+        <div class="flex flex-col items-start gap-2 sm:items-end">
+          <span class="break-all">{{ currentUser()?.email }}</span>
+          <button
+            class="inline-flex items-center justify-center rounded-button border border-surface-white/30 px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors hover:bg-surface-white hover:text-brand-navy"
+            (click)="logout()">
+            Logout
+          </button>
+        </div>
+        } @else {
+        <div class="flex items-center gap-3">
+          <a class="text-surface-white/90 transition-colors hover:text-surface-white" [routerLink]="['/register']">Register</a>
+          <a class="text-surface-white/90 transition-colors hover:text-surface-white" [routerLink]="['/login']">Login</a>
+        </div>
+        }
+      </div>
+    </div>
+  </header>
 
-<div class="cart-backdrop"
-     [class.active]="showCart()"
-     (click)="closeCart()">
-</div>
-<div class="cart-sidebar" [class.open]="showCart()">
-  <div class="head">
-    <h2>Cart</h2>
-    <button (click)="closeCart()">Close</button>
-  </div>
-
-  <div class="cart-content">
-    <p>Total price: ₴{{ cart()?.grandTotal || 0 }}</p>
-
-    <ul>
-      @for (item of cart()?.items; track item.laptopId) {
-      <li class="cart-item">
-        <span class="item-name">
-          {{ item.laptopName }} (x{{ item.quantity }}) - ₴{{ item.totalPrice }}
-        </span>
-        <button (click)="removeFromCart(item.laptopId)">Delete</button>
-      </li>
-      } @empty {
-      <li class="empty-cart">Cart is empty</li>
-      }
-    </ul>
-
-    @if (cart()?.items?.length) {
-    <button (click)="clearCart()">Clear cart</button>
-    <a [routerLink]="['/order']" class="order-link">Confirm purchase</a>
+  <main class="mx-auto max-w-7xl px-4 py-4">
+    @if (!showCart()) {
+    <button
+      class="inline-flex items-center justify-center rounded-button bg-brand-secondary px-4 py-2 text-sm font-bold uppercase tracking-wider text-surface-white transition-colors hover:bg-brand-secondary-hover"
+      (click)="openCart()">
+      Open cart
+    </button>
     }
-  </div>
+
+    <router-outlet></router-outlet>
+  </main>
+
+  <div
+    class="fixed inset-0 z-[var(--z-index-backdrop)] bg-surface-backdrop transition-opacity duration-300 ease-in-out opacity-0 pointer-events-none"
+    [class.opacity-100]="showCart()"
+    [class.pointer-events-auto]="showCart()"
+    [class.opacity-0]="!showCart()"
+    [class.pointer-events-none]="!showCart()"
+    (click)="closeCart()"></div>
+
+  <aside
+    class="fixed right-0 top-0 z-[var(--z-index-sidebar)] flex h-full w-[var(--spacing-sidebar)] max-w-full translate-x-full translate-x-0 flex-col bg-surface-white shadow-sidebar transition-transform duration-300 ease-in-out"
+    [class.translate-x-full]="!showCart()"
+    [class.translate-x-0]="showCart()">
+    <div class="flex items-center justify-between border-b border-border-default px-5 py-4">
+      <h2 class="text-xl font-bold text-text-main">Cart</h2>
+      <button
+        class="inline-flex items-center justify-center rounded-button border border-border-default px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-text-main transition-colors hover:bg-surface-light"
+        (click)="closeCart()">
+        Close
+      </button>
+    </div>
+
+    <div class="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
+      <p class="text-sm font-semibold text-text-main">Total price: ₴{{ cart()?.grandTotal || 0 }}</p>
+
+      <ul class="space-y-2">
+        @for (item of cart()?.items; track item.laptopId) {
+        <li class="flex items-start justify-between gap-3 rounded-card border border-border-default bg-surface-light px-3 py-2">
+          <span class="min-w-0 text-sm text-text-main">
+            {{ item.laptopName }} (x{{ item.quantity }}) - ₴{{ item.totalPrice }}
+          </span>
+          <button
+            class="shrink-0 rounded-button bg-status-danger px-3 py-1 text-xs font-bold uppercase tracking-wider text-surface-white transition-opacity hover:opacity-90"
+            (click)="removeFromCart(item.laptopId)">
+            Delete
+          </button>
+        </li>
+        } @empty {
+        <li class="rounded-card border border-dashed border-border-default px-3 py-4 text-center text-sm text-text-muted">Cart is empty</li>
+        }
+      </ul>
+
+      @if (cart()?.items?.length) {
+      <div class="mt-auto grid grid-cols-1 gap-2">
+        <button
+          class="inline-flex items-center justify-center rounded-button border border-border-default bg-surface-light px-4 py-2 text-sm font-bold uppercase tracking-wider text-text-main transition-colors hover:bg-surface-white"
+          (click)="clearCart()">
+          Clear cart
+        </button>
+        <a
+          [routerLink]="['/order']"
+          class="inline-flex items-center justify-center rounded-button bg-brand-secondary px-4 py-2 text-sm font-bold uppercase tracking-wider text-surface-white transition-colors hover:bg-brand-secondary-hover"
+          (click)="closeCart()">
+          Confirm purchase
+        </a>
+      </div>
+      }
+    </div>
+  </aside>
 </div>
-<div class="account">
-  @if (currentUser()) {
-  <span>{{ currentUser()?.email }}</span>
-  <br />
-  <button (click)="logout()">Logout</button>
-  } @else {
-  <a [routerLink]="['/register']">Register</a>
-  <br />
-  <a [routerLink]="['/login']">Login</a>
-  }
-</div>
-<router-outlet></router-outlet>

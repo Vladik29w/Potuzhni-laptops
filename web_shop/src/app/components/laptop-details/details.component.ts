@@ -10,7 +10,6 @@ import { LaptopDetailsDTO } from '../../DTO/laptop-dto';
   imports: [CommonModule],
   templateUrl: './details.component.html',
   standalone: true,
-  styles: ``,
 })
 export class LaptopDetails implements OnInit {
   laptop: LaptopDetailsDTO | null = null;

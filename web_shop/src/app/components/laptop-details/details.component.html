@@ -1,18 +1,41 @@
-<div *ngIf="laptop" class="laptop-details">
-  <h2>{{ laptop?.name }}</h2>
+<div *ngIf="laptop" class="bg-surface-light">
+  <div class="mx-auto max-w-6xl px-4 py-8">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
+        <div class="aspect-[4/3] overflow-hidden rounded-card bg-white">
+          <img class="h-full w-full object-contain" [src]="laptop.img" [alt]="laptop.name">
+        </div>
+      </div>
 
-  <div class="laptop-info">
-    <div class="specifications">
-      <img [src]="laptop.img" [alt]="laptop.name">
-      <h3>Details:</h3>
-      <p><strong>CPU:</strong> {{ laptop?.cpu}}</p>
-      <p><strong>RAM:</strong>{{laptop?.ram}} GB</p>
-      <p><strong>GPU:</strong>{{laptop.gpu}}</p>
-    </div>
+      <div class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-text-main">{{ laptop?.name }}</h2>
 
-    <div class="price-section">
-      <p class="price">{{ laptop?.price }} грн</p>
-      <button (click)="addProduct()">Add to cart</button>
+        <div class="mt-3 flex items-baseline gap-2">
+          <div class="text-3xl font-extrabold text-text-main">{{ laptop?.price }} грн</div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-text-muted">Specs</h3>
+          <dl class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div class="rounded-card border border-border-default bg-surface-white px-4 py-3">
+              <dt class="text-xs font-semibold text-text-muted">CPU</dt>
+              <dd class="mt-1 text-sm font-bold text-text-main">{{ laptop?.cpu}}</dd>
+            </div>
+            <div class="rounded-card border border-border-default bg-surface-white px-4 py-3">
+              <dt class="text-xs font-semibold text-text-muted">RAM</dt>
+              <dd class="mt-1 text-sm font-bold text-text-main">{{laptop?.ram}} GB</dd>
+            </div>
+            <div class="rounded-card border border-border-default bg-surface-white px-4 py-3 sm:col-span-2">
+              <dt class="text-xs font-semibold text-text-muted">GPU</dt>
+              <dd class="mt-1 text-sm font-bold text-text-main">{{laptop.gpu}}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+          <button class="inline-flex w-full items-center justify-center rounded-button bg-brand-secondary px-4 py-2 text-sm font-bold uppercase tracking-wider text-surface-white transition-colors hover:bg-brand-secondary-hover sm:w-auto md:px-6 md:py-3 md:text-base" (click)="addProduct()">Add to cart</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

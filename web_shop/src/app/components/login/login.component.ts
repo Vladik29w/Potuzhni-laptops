@@ -8,7 +8,6 @@ import { LoginDTO } from '../../DTO/account-dto';
   selector: 'app-login.component',
   imports: [ReactiveFormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css',
 })
 export class LoginComponent {
   //injects

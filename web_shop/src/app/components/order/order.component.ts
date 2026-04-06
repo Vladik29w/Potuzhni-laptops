@@ -16,7 +16,6 @@ import { AsyncPipe } from '@angular/common';
   standalone: true,
   imports: [ReactiveFormsModule, RouterOutlet, RouterLink, AsyncPipe],
   templateUrl: './order.component.html',
-  styleUrl: './order.component.css',
 })
 export class OrderComponent {
   private _orderService = inject(OrderService);

@@ -1,102 +1,142 @@
-<form [formGroup]="orderForm" (ngSubmit)="createOrder()">
-
-  @if (cart) {
-  <div class="cart-summary">
-    <h2>Your order</h2>
-    <ul>
-      @for (item of cart.items; track item.laptopId) {
-      <li>
-        {{ item.laptopName }} — {{ item.quantity }} x {{ item.price }} ₴ = <strong>{{ item.totalPrice }} ₴</strong>
-      </li>
-      }
-    </ul>
-    <h4>Grand Total: {{ cart.grandTotal }} ₴</h4>
-    <hr>
-  </div>
-  }
-
-  <h3>Delivery & Payment</h3>
-
-  <div class="form-group">
-    <label>Delivery Method:</label>
-    <select formControlName="delivery">
-      <option [ngValue]="0">Select delivery method...</option>
-      @for (option of deliveryOptions; track option.id) {
-      <option [ngValue]="option.id">{{ option.name }}</option>
-      }
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label>Payment Method:</label>
-    <select formControlName="pay">
-      <option [ngValue]="0">Select payment method...</option>
-      @for (option of paymentOptions; track option.id) {
-      <option [ngValue]="option.id">{{ option.name }}</option>
-      }
-    </select>
-
-    @if (orderForm.get('pay')?.invalid && orderForm.get('pay')?.touched) {
-    <div class="error-text">
-      Select payment method first
+<div class="bg-surface-light">
+  <div class="mx-auto max-w-6xl px-4 py-8">
+    <div class="mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-text-main">Checkout</h1>
+      <p class="mt-1 text-sm text-text-muted">Confirm delivery, payment and contact details.</p>
     </div>
-    }
+
+    <form [formGroup]="orderForm" (ngSubmit)="createOrder()" class="grid grid-cols-1 gap-6 lg:grid-cols-5">
+
+      <div class="lg:col-span-3 space-y-6">
+        <section class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
+          <h3 class="text-lg font-bold text-text-main">Delivery & Payment</h3>
+          <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label>Delivery Method</label>
+              <select formControlName="delivery">
+                <option [ngValue]="0">Select delivery method...</option>
+                @for (option of deliveryOptions; track option.id) {
+                <option [ngValue]="option.id">{{ option.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <label>Payment Method</label>
+              <select formControlName="pay">
+                <option [ngValue]="0">Select payment method...</option>
+                @for (option of paymentOptions; track option.id) {
+                <option [ngValue]="option.id">{{ option.name }}</option>
+                }
+              </select>
+
+              @if (orderForm.get('pay')?.invalid && orderForm.get('pay')?.touched) {
+              <div class="mt-1 text-xs text-status-error-text">Select payment method first</div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
+          <h3 class="text-lg font-bold text-text-main">Contact Information</h3>
+          <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label>Phone</label>
+              <input type="text" formControlName="phone" placeholder="Phone Number" />
+            </div>
+            <div>
+              <label>Email</label>
+              <input type="email" formControlName="email" placeholder="Email Address" />
+            </div>
+          </div>
+        </section>
+
+        @if (orderForm.get('delivery')?.value === novaPostEnumId) {
+        <section class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
+          <h3 class="text-lg font-bold text-text-main">Nova Post Delivery</h3>
+          <div class="mt-4 grid grid-cols-1 gap-4">
+            <div class="relative">
+              <label for="citySearch">City</label>
+              <input type="text"
+                     id="citySearch"
+                     formControlName="citySearch"
+                     placeholder="Start typing city name..."
+                     autocomplete="off" />
+
+              @if (cities | async; as cityList) {
+              @if (cityList.length > 0 && !orderForm.value.cityRef) {
+              <ul class="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-card border border-border-default bg-surface-white shadow-card">
+                @for (city of cityList; track city.Ref) {
+                <li class="cursor-pointer px-3 py-2 text-sm hover:bg-surface-light" (click)="selectCity(city)">
+                  {{ city.Present }}
+                </li>
+                }
+              </ul>
+              }
+              }
+            </div>
+
+            @if (orderForm.get('cityRef')?.value) {
+            <div class="relative">
+              <label for="warehouseSearch">Nova Post Warehouse</label>
+              <input type="text"
+                     id="warehouseSearch"
+                     formControlName="warehouseSearch"
+                     placeholder="Enter warehouse number or address..."
+                     autocomplete="off" />
+
+              @if (warehouses | async; as warehouseList) {
+              @if (warehouseList.length > 0 && !orderForm.value.warehouseRef) {
+              <ul class="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-card border border-border-default bg-surface-white shadow-card">
+                @for (wh of warehouseList; track wh.Ref) {
+                <li class="cursor-pointer px-3 py-2 text-sm hover:bg-surface-light" (click)="selectWarehouse(wh)">
+                  {{ wh.Description }}
+                </li>
+                }
+              </ul>
+              }
+              }
+            </div>
+            }
+          </div>
+        </section>
+        }
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <button class="inline-flex items-center justify-center rounded-button bg-brand-secondary px-4 py-2 text-sm font-bold uppercase tracking-wider text-surface-white transition-colors hover:bg-brand-secondary-hover disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3 md:text-base" type="submit" [disabled]="orderForm.invalid || orderForm.value.pay === 0 || orderForm.value.delivery === 0">
+            Confirm order
+          </button>
+        </div>
+      </div>
+
+      <aside class="lg:col-span-2">
+        <div class="sticky top-6 rounded-card bg-surface-white p-4 shadow-card md:p-6">
+          <h3 class="text-lg font-bold text-text-main">Your order</h3>
+
+          @if (cart) {
+          <div class="mt-4">
+            <ul class="divide-y divide-border-default">
+              @for (item of cart.items; track item.laptopId) {
+              <li class="py-3 flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <div class="truncate text-sm font-semibold text-text-main">{{ item.laptopName }}</div>
+                  <div class="text-xs text-text-muted">{{ item.quantity }} × {{ item.price }} ₴</div>
+                </div>
+                <div class="shrink-0 text-sm font-bold text-text-main">{{ item.totalPrice }} ₴</div>
+              </li>
+              }
+            </ul>
+
+            <div class="mt-4 flex items-center justify-between border-t border-border-default pt-4">
+              <div class="text-sm font-semibold text-text-main">Grand total</div>
+              <div class="text-lg font-extrabold text-text-main">{{ cart.grandTotal }} ₴</div>
+            </div>
+          </div>
+          } @else {
+          <div class="mt-4 text-sm text-text-muted">Cart is empty.</div>
+          }
+        </div>
+      </aside>
+    </form>
   </div>
-
-  <hr>
-
-  <h3>Contact Information</h3>
-  <input type="text" formControlName="phone" placeholder="Phone Number" />
-  <input type="email" formControlName="email" placeholder="Email Address" />
-
-  @if (orderForm.get('delivery')?.value === novaPostEnumId) {
-  <h3>Delivery Address</h3>
-
-  <div class="form-group autocomplete-container">
-    <label for="citySearch">City:</label>
-    <input type="text"
-           id="citySearch"
-           formControlName="citySearch"
-           placeholder="Start typing city name..."
-           autocomplete="off" />
-
-    @if (cities | async; as cityList) {
-    @if (cityList.length > 0 && !orderForm.value.cityRef) {
-    <ul class="autocomplete-list">
-      @for (city of cityList; track city.Ref) {
-      <li (click)="selectCity(city)">
-        {{ city.Present }}
-      </li>
-      }
-    </ul>
-    }
-    }
-  </div>
-
-  @if (orderForm.get('cityRef')?.value) {
-  <div class="form-group autocomplete-container">
-    <label for="warehouseSearch">Nova Post Warehouse:</label>
-    <input type="text"
-           id="warehouseSearch"
-           formControlName="warehouseSearch"
-           placeholder="Enter warehouse number or address..."
-           autocomplete="off" />
-
-    @if (warehouses | async; as warehouseList) {
-    @if (warehouseList.length > 0 && !orderForm.value.warehouseRef) {
-    <ul class="autocomplete-list">
-      @for (wh of warehouseList; track wh.Ref) {
-      <li (click)="selectWarehouse(wh)">
-        {{ wh.Description }}
-      </li>
-      }
-    </ul>
-    }
-    }
-  </div>
-  }
-  } <br />
-  <button type="submit" [disabled]="orderForm.invalid || orderForm.value.pay === 0 || orderForm.value.delivery === 0">
-    Confirm
-  </button>
-</form>
+</div>
