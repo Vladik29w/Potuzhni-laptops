@@ -15,17 +15,17 @@ namespace LaptopServer.Controllers
             _npService = npService;
         }
         [HttpGet("city")]
-        public async Task<ActionResult<List<NpSettlementAddress>>> GetCity(string cityName)
+        public async Task<ActionResult<List<NpSettlementAddress>>> GetCity(string cityName, CancellationToken ct = default)
         {
-            var res = await _npService.GetCities(cityName);
+            var res = await _npService.GetCities(cityName, ct);
             if (res.IsError)
                 return BadRequest(res.FirstError.Code);
             return Ok(res.Value);
         }
         [HttpGet("warehouse/{cityRef}")]
-        public async Task<ActionResult<List<NpWarehouse>>> GetWarehouse([FromRoute] string cityRef, [FromQuery] string? searchString)
+        public async Task<ActionResult<List<NpWarehouse>>> GetWarehouse([FromRoute] string cityRef, [FromQuery] string? searchString, CancellationToken ct = default)
         {
-            var res = await _npService.GetWarehouses(cityRef, searchString);
+            var res = await _npService.GetWarehouses(cityRef, searchString, ct);
             if (res.IsError)
                 return BadRequest(res.FirstError.Code);
             return Ok(res.Value);

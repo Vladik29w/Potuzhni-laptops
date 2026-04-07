@@ -21,6 +21,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAdminPanelService, AdminPanelService>();
 builder.Services.AddHttpClient<INovaPostService, NovaPostService>();
+builder.Services.AddMemoryCache();
 //CORS
 builder.Services.AddCors(options =>
 {
