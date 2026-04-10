@@ -1,6 +1,5 @@
 using LaptopServer.DB;
 using LaptopServer.Infrastructure.API;
-using LaptopServer.Mappers;
 using LaptopServer.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -90,18 +89,15 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
+app.MapOpenApi();
 
-    app.MapScalarApiReference(options =>
-    {
-        options
-            .WithTitle("LaptopServer")
-            .WithTheme(ScalarTheme.Moon)
-            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-    });
-}
+app.MapScalarApiReference(options =>
+{
+    options
+        .WithTitle("LaptopServer")
+        .WithTheme(ScalarTheme.Moon)
+        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+});
 
 app.UseHttpsRedirection();
 app.UseRouting();
