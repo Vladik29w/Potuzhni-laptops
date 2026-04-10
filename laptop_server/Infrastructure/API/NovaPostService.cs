@@ -12,7 +12,7 @@ namespace LaptopServer.Infrastructure.API
     public class NovaPostService : INovaPostService
     {
         private readonly HttpClient _httpClient;
-        private readonly IMemoryCache _cache;
+        private readonly IMemoryCache _cache; //todo cache getOrCreate
         private readonly string _apiKey;
         private const string ApiUrl = "https://api.novaposhta.ua/v2.0/json/";
         public NovaPostService(HttpClient httpClient, IMemoryCache cache, IConfiguration configuration)

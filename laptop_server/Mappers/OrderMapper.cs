@@ -6,12 +6,13 @@ using Riok.Mapperly.Abstractions;
 public static partial class OrderMapper
 {
     public static partial IQueryable<OrderDTO> ToOrder(this IQueryable<OrderEntity> entity);
+    public static partial OrderDTO ToDto(OrderEntity entity);
 
-    public static OrderEntity ToOrderEntity(CreateOrderDTO creatingOrder, CartDTO cart)
+    public static OrderEntity ToOrderEntity(CreateOrderDTO creatingOrder, CartDTO cart, Guid orderId)
     {
         var order = Map(creatingOrder);
 
-        order.Id = Guid.NewGuid();
+        order.Id = orderId;
         order.TotalPrice = cart.GrandTotal;
         order.OrderItems = ToOrderItems(cart.Items);
 
@@ -23,5 +24,9 @@ public static partial class OrderMapper
     [MapperIgnoreTarget(nameof(OrderEntity.Id))]
     [MapperIgnoreTarget(nameof(OrderEntity.OrderItems))]
     [MapperIgnoreTarget(nameof(OrderEntity.TotalPrice))]
+    [MapperIgnoreTarget(nameof(OrderEntity.PaymentId))]
+    [MapperIgnoreTarget(nameof(OrderEntity.PaymentUrl))]
+    [MapperIgnoreTarget(nameof(OrderEntity.PaymentStatus))]
+    [MapperIgnoreTarget(nameof(OrderEntity.CreatedAt))]
     private static partial OrderEntity Map(CreateOrderDTO creatingOrder);
 }

@@ -11,7 +11,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+//Services
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<ILaptopService, LaptopService>();
@@ -20,7 +20,15 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAdminPanelService, AdminPanelService>();
+//HTTP Clients
 builder.Services.AddHttpClient<INovaPostService, NovaPostService>();
+builder.Services.AddHttpClient<IMonopayService, MonopayService>((provider, client) =>
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var key = config["ApiKeys:Monopay"] ?? throw new InvalidOperationException("Null Monopay token");
+    client.DefaultRequestHeaders.Add("X-Token", key);
+});
+//Other services
 builder.Services.AddMemoryCache();
 //CORS
 builder.Services.AddCors(options =>

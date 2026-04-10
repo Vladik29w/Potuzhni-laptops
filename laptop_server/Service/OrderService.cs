@@ -1,29 +1,32 @@
 ﻿using ErrorOr;
 using LaptopServer.DB;
 using LaptopServer.DTO;
-using LaptopServer.Entities;
-using LaptopServer.Mappers;
+using LaptopServer.Enums;
+using LaptopServer.Infrastructure.API;
 using Microsoft.EntityFrameworkCore;
 
 namespace LaptopServer.Service
 {
     public interface IOrderService
     {
-        Task<ErrorOr<Guid>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken cancellationToken = default);
+        Task<ErrorOr<OrderDTO>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken cancellationToken = default);
+        Task UpdateOrder(Guid orderId, PaymentStatus status);
         Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId);
-        Task<List<OrderDTO>> GetAllOrders(); 
+        Task<List<OrderDTO>> GetAllOrders();
     }
     public class OrderService : IOrderService
     {
         private readonly ICartService _cartService;
+        private readonly IMonopayService _payService;
 
         private readonly LaptopsDBContext _dbContext;
-        public OrderService(LaptopsDBContext dbContext, ICartService сartService)
+        public OrderService(LaptopsDBContext dbContext, ICartService сartService, IMonopayService monopay)
         {
             _dbContext = dbContext;
             _cartService = сartService;
+            _payService = monopay;
         }
-        public async Task<ErrorOr<Guid>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken cancellationToken = default)
+        public async Task<ErrorOr<OrderDTO>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken cancellationToken = default)
         {
             if (creatingOrder.CartId == Guid.Empty)
                 return Error.Validation(code: "NullCartID");
@@ -33,18 +36,22 @@ namespace LaptopServer.Service
                 return Error.NotFound(code: "CartNotFound", description: $"Cart with ID '{creatingOrder.CartId}' not found.");
             if (cart.Items == null || !cart.Items.Any())
                 return Error.Failure(code: "EmptyCart");
-            var orderItems = cart.Items.Select(item => new OrderItemEntity
-            {
-                LaptopId = item.LaptopId,
-                LaptopName = item.LaptopName,
-                Price = item.Price,
-                Quantity = item.Quantity,
-            }).ToList();
-            var order = OrderMapper.ToOrderEntity(creatingOrder, cart);
-            _dbContext.Add(order);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            Guid orderId = Guid.NewGuid();
+            var order = OrderMapper.ToOrderEntity(creatingOrder, cart, orderId);
+            var orderdto = OrderMapper.ToDto(order);
+            var payRes = await _payService.CreateInvoice(orderdto);
+            if (payRes.IsError)
+                return payRes.Errors;
+            order.PaymentId = payRes.Value.InvoiceId;
+            order.PaymentUrl = payRes.Value.PageUrl;
+            await _dbContext.SaveChangesAsync();
             await _cartService.ClearCart(creatingOrder.CartId);
-            return order.Id;
+            return OrderMapper.ToDto(order);
+        }
+        public async Task UpdateOrder(Guid orderId, PaymentStatus status)
+        {
+            await _dbContext.Orders.Where(ord => ord.Id == orderId).ExecuteUpdateAsync(set => set.SetProperty(ord => ord.PaymentStatus, status));
         }
         public async Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId)
         {

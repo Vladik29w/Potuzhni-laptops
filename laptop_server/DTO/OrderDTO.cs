@@ -19,6 +19,9 @@ namespace LaptopServer.DTO
         public string? DeliveryCityName { get; set; }
         public string? DeliveryWarehouseRef { get; set; }
         public string? DeliveryWarehouseName { get; set; }
+        public string? PaymentId { get; set; }
+        public string? PaymentUrl { get; set; }
+        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
     public record OrderItemDTO
