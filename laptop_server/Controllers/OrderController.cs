@@ -19,7 +19,7 @@ namespace LaptopServer.Controllers
         {
             var res = await _orderService.CreateOrder(order, HttpContext.RequestAborted);
             if (res.IsError)
-                return BadRequest(res.FirstError.Code);
+                return BadRequest(res.FirstError.Description);
             return Ok(res.Value);
         }
     }

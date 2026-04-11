@@ -46,9 +46,16 @@ namespace LaptopServer.Infrastructure.API
                 }
             };
             var response = await _httpClient.PostAsJsonAsync($"{monoUrl}/invoice/create", req);
+
             if (response.IsSuccessStatusCode)
+            {
                 return await response.Content.ReadFromJsonAsync<MonopayResponse>();
-            else return Error.Failure(code: "ApiReqFailed");
+            }
+            var errorJson = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine($"[MONO ERROR] Status: {response.StatusCode}, Body: {errorJson}");
+
+            return Error.Failure(code: "Mono.ApiError", description: errorJson);
         }
         public async Task<bool> VerifyResponse(string body, string xSign)
         {

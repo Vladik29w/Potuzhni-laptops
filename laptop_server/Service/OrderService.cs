@@ -26,7 +26,7 @@ namespace LaptopServer.Service
             _cartService = сartService;
             _payService = monopay;
         }
-        public async Task<ErrorOr<OrderDTO>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken cancellationToken = default)
+        public async Task<ErrorOr<OrderDTO>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken ct = default)
         {
             if (creatingOrder.CartId == Guid.Empty)
                 return Error.Validation(code: "NullCartID");
@@ -45,7 +45,8 @@ namespace LaptopServer.Service
                 return payRes.Errors;
             order.PaymentId = payRes.Value.InvoiceId;
             order.PaymentUrl = payRes.Value.PageUrl;
-            await _dbContext.SaveChangesAsync(); //todo перепиши по юніт оф ворк
+            await _dbContext.AddAsync(order, ct);
+            await _dbContext.SaveChangesAsync(ct);
             await _cartService.ClearCart(creatingOrder.CartId);
             return OrderMapper.ToDto(order);
         }
