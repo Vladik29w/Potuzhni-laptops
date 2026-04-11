@@ -45,7 +45,7 @@ namespace LaptopServer.Service
                 return payRes.Errors;
             order.PaymentId = payRes.Value.InvoiceId;
             order.PaymentUrl = payRes.Value.PageUrl;
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(); //todo перепиши по юніт оф ворк
             await _cartService.ClearCart(creatingOrder.CartId);
             return OrderMapper.ToDto(order);
         }
