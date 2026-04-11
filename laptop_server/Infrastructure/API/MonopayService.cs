@@ -17,7 +17,7 @@ namespace LaptopServer.Infrastructure.API
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _cache;
         private const string monoUrl = "https://api.monobank.ua/api/merchant";
-        private const string webhook = "https://potuzhni-laptops.azurewebsites.net/webhook/getWebhook";
+        private const string webhook = "https://laptopserver-app-20260330234553.agreeableplant-e8507c58.polandcentral.azurecontainerapps.io/Webhook/getWebhook";
         private const string redirect = "https://potuzhni-laptops-atbmfyb4hafdhyb4.polandcentral-01.azurewebsites.net";
         public MonopayService(HttpClient httpClient, IConfiguration configuration, IMemoryCache cache)
         {
