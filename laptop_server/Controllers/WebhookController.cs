@@ -31,6 +31,9 @@ namespace LaptopServer.Controllers
             using var reader = new StreamReader(Request.Body);
             string body = await reader.ReadToEndAsync();
             var res = await _payService.CheckWebhook(body, xSign!);
+            if (res.IsError)
+                Problem(res.FirstError.Code);
+            _orderService.UpdateOrder(res.Value.orderId, res.Value.status);
 
             return res.Match<IActionResult>(
                 Success => Ok(),

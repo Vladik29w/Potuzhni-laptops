@@ -15,21 +15,19 @@ namespace LaptopServer.Infrastructure.API
     public interface IMonopayService
     {
         Task<ErrorOr<MonopayResponse>> CreateInvoice(OrderDTO order);
-        Task <ErrorOr<Success>> CheckWebhook(string body, string xSign);
+        Task <ErrorOr<(Guid orderId, PaymentStatus status)>> CheckWebhook(string body, string xSign);
     }
     public class MonopayService : IMonopayService
     {
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _cache;
-        private readonly IOrderService _orderService;
         private const string monoUrl = "https://api.monobank.ua/api/merchant";
         private const string webhook = "https://laptopserver-app-20260330234553.agreeableplant-e8507c58.polandcentral.azurecontainerapps.io/Webhook/getWebhook";
         private const string redirect = "https://potuzhni-laptops-atbmfyb4hafdhyb4.polandcentral-01.azurewebsites.net";
-        public MonopayService(HttpClient httpClient, IConfiguration configuration, IMemoryCache cache, IOrderService orderService)
+        public MonopayService(HttpClient httpClient, IConfiguration configuration, IMemoryCache cache)
         {
             _httpClient = httpClient;
             _cache = cache;
-            _orderService = orderService;
         }
         public async Task<ErrorOr<MonopayResponse>> CreateInvoice(OrderDTO order)
         {
@@ -64,7 +62,7 @@ namespace LaptopServer.Infrastructure.API
 
             return Error.Failure(code: "Mono.ApiError", description: errorJson);
         }
-        public async Task<ErrorOr<Success>> CheckWebhook (string body, string xSign)
+        public async Task<ErrorOr<(Guid orderId, PaymentStatus status)>> CheckWebhook(string body, string xSign)
         {
             if (!await VerifyResponse(body, xSign))
                 return Error.Failure(code: "MonoVerifyError");
@@ -82,8 +80,7 @@ namespace LaptopServer.Infrastructure.API
                 "expired" => PaymentStatus.Expired,
                 "reversed" => PaymentStatus.Reversed
             };
-            await _orderService.UpdateOrder(orderId, status);
-            return Result.Success;
+            return (orderId, status);
         }
         private async Task<bool> VerifyResponse(string body, string xSign)
         {

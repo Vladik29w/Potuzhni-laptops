@@ -18,7 +18,6 @@ namespace LaptopServer.Service
     {
         private readonly ICartService _cartService;
         private readonly IMonopayService _payService;
-
         private readonly LaptopsDBContext _dbContext;
         public OrderService(LaptopsDBContext dbContext, ICartService сartService, IMonopayService monopay)
         {

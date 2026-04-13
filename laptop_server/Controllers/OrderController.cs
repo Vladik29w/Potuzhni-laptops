@@ -15,7 +15,7 @@ namespace LaptopServer.Controllers
             _orderService = orderService;
         }
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateOrder(CreateOrderDTO order)
+        public async Task<ActionResult<OrderDTO>> CreateOrder(CreateOrderDTO order)
         {
             var res = await _orderService.CreateOrder(order, HttpContext.RequestAborted);
             if (res.IsError)
