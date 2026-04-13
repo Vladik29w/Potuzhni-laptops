@@ -52,7 +52,9 @@ namespace LaptopServer.Service
         }
         public async Task UpdateOrder(Guid orderId, PaymentStatus status)
         {
-            await _dbContext.Orders.Where(ord => ord.Id == orderId).ExecuteUpdateAsync(set => set.SetProperty(ord => ord.PaymentStatus, status));
+            await _dbContext.Orders
+            .Where(ord => ord.Id == orderId && ord.PaymentStatus != PaymentStatus.Success && ord.PaymentStatus != PaymentStatus.Reversed)
+            .ExecuteUpdateAsync(set => set.SetProperty(ord => ord.PaymentStatus, status));
         }
         public async Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId)
         {

@@ -4,9 +4,7 @@
     {
         Unknown = 0,
         Cash = 1,
-        Card = 2,
-        GooglePay = 3,
-        ApplePay = 4
+        Online = 2
     }
     public enum DeliveryEnum
     {

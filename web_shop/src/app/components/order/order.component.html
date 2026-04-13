@@ -103,8 +103,9 @@
         }
 
         <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <button class="inline-flex items-center justify-center rounded-button bg-brand-secondary px-4 py-2 text-sm font-bold uppercase tracking-wider text-surface-white transition-colors hover:bg-brand-secondary-hover disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3 md:text-base" type="submit" [disabled]="orderForm.invalid || orderForm.value.pay === 0 || orderForm.value.delivery === 0">
-            Confirm order
+          <button class="inline-flex items-center justify-center rounded-button bg-green-600 px-4 py-2 text-sm font-bold uppercase tracking-wider text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3 md:text-base"
+                  type="submit" [disabled]="orderForm.invalid || orderForm.value.pay === 0 || orderForm.value.delivery === 0">
+            {{ buttonText }}
           </button>
         </div>
       </div>

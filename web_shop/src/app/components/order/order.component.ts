@@ -6,10 +6,10 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angula
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { CartDTO } from '../../DTO/cart-dto';
 import { NpSettlementAddress, NpWarehouse } from '../../DTO/novapost-dto';
-import { PayEnum, DeliveryEnum } from '../../DTO/order-dto';
+import { OrderResponce, PayEnum, DeliveryEnum } from '../../DTO/order-dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, Observable, distinctUntilChanged, filter, of, switchMap, catchError } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-order.component',
@@ -22,6 +22,7 @@ export class OrderComponent {
   private _cartService = inject(CartService);
   private _novaPostService = inject(NovaPostService);
   private _destroyRef = inject(DestroyRef);
+  private _document = inject(DOCUMENT);
 
   orderForm = new FormGroup({
     pay: new FormControl<PayEnum>(PayEnum.Unknown, { nonNullable: true }),
@@ -38,9 +39,7 @@ export class OrderComponent {
 
   paymentOptions = [
     { id: PayEnum.Cash, name: 'Cash' },
-    { id: PayEnum.Card, name: 'Card' },
-    { id: PayEnum.GooglePay, name: 'Google Pay' },
-    { id: PayEnum.ApplePay, name: 'Apple Pay' }
+    { id: PayEnum.Online, name: 'Online' }
   ];
 
   deliveryOptions = [
@@ -63,7 +62,6 @@ export class OrderComponent {
     switchMap(queue => {
       let ref = this.orderForm.controls.cityRef.getRawValue();
       if (!ref) return of([]);
-
       return this._novaPostService.getWarehouses(ref, queue).pipe(
         catchError(() => of([]))
       );
@@ -111,12 +109,17 @@ export class OrderComponent {
       deliveryCityName: citySearch,
       deliveryWarehouseRef: warehouseRef,
       deliveryWarehouseName: warehouseSearch
-    }).pipe(
-      takeUntilDestroyed(this._destroyRef)
-    ).subscribe({
-      next: (orderId) => {
-        alert(`Your order ID: ${orderId}`);
-        this.orderForm.reset();
+    }).pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe({
+      next: (res: OrderResponce) => {
+        console.log(`Order created: ${res.orderId}`);
+        
+        if (pay === PayEnum.Online && res.paymentUrl) {
+          this._document.location.href = res.paymentUrl;
+        } else {
+          alert('Order created successfully');
+          this.orderForm.reset();
+        }
       },
       error: (error) => {
         console.error('Order creation failed:', error);
@@ -126,5 +129,17 @@ export class OrderComponent {
 
   public get novaPostEnumId(): number {
     return DeliveryEnum.NovaPost;
+  }
+
+  public get onlinePayment(): number {
+    return PayEnum.Online;
+  }
+
+  public get isOnlinePayment(): boolean {
+    return this.orderForm.get('pay')?.value === PayEnum.Online;
+  }
+
+  public get buttonText(): string {
+    return this.isOnlinePayment ? 'Pay now' : 'Create order';
   }
 }

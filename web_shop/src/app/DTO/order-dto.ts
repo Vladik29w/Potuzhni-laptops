@@ -1,10 +1,10 @@
+import { Data } from "@angular/router";
+
 // Enums
 export enum PayEnum {
   Unknown = 0,
   Cash = 1,
-  Card = 2,
-  GooglePay = 3,
-  ApplePay = 4
+  Online = 2
 }
 export enum DeliveryEnum {
   Unknown = 0,
@@ -22,6 +22,17 @@ export interface CreateOrderDTO {
   deliveryCityName?: string;
   deliveryWarehouseRef?: string;
   deliveryWarehouseName?: string;
+}
+export interface OrderResponce {
+  orderId: string,
+  totalPrice: number,
+  payMethod: PayEnum,
+  deliveryMethod: DeliveryEnum,
+  phoneNumber: string,
+  email: string,
+  paymentId: string,
+  paymentUrl: string,
+  createdAt: string
 }
 export interface OrderStatsDTO {
   date: Date;

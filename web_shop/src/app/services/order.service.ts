@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { CartService } from './cart.service';
 import { environment } from '../../environments/environment';
-import { CreateOrderDTO } from '../DTO/order-dto';
+import { CreateOrderDTO, OrderResponce } from '../DTO/order-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +25,6 @@ export class OrderService {
       deliveryWarehouseRef: order.deliveryWarehouseRef,
       deliveryWarehouseName: order.deliveryWarehouseName
     };
-    return this.http.post<string>(this.url, body);
+    return this.http.post<OrderResponce>(this.url, body);
   }
 }
