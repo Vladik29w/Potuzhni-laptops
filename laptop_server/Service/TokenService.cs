@@ -13,17 +13,8 @@ namespace LaptopServer.Service
         Task<string> GetTokenAsync(IdentityUser user);
         string GetRefreshToken();
     }
-    public class TokenService : ITokenService
+    public class TokenService(IConfiguration config, UserManager<IdentityUser> userManager) : ITokenService
     {
-        readonly IConfiguration _config;
-        readonly UserManager<IdentityUser> _userManager;
-
-        public TokenService(IConfiguration config, UserManager<IdentityUser> userManager)
-        {
-            _config = config;
-            _userManager = userManager;
-        }
-
         public async Task<string> GetTokenAsync(IdentityUser user)
         {
             var claims = new List<Claim>
@@ -33,11 +24,11 @@ namespace LaptopServer.Service
                 new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty)
             };
 
-            var roles = await _userManager.GetRolesAsync(user);
+            var roles = await userManager.GetRolesAsync(user);
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            var secretKey = _config["JwtSetting:Key"] ?? throw new InvalidOperationException("JWT Secret Key is not configured.");
-            
+            var secretKey = config["JwtSetting:Key"] ?? throw new InvalidOperationException("JWT Secret Key is not configured.");
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -46,13 +37,13 @@ namespace LaptopServer.Service
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(10),
                 SigningCredentials = credentials,
-                Issuer = _config["JwtSetting:LaptopServer"],
-                Audience = _config["JwtSetting:LaptopClient"]
+                Issuer = config["JwtSetting:LaptopServer"],
+                Audience = config["JwtSetting:LaptopClient"]
             };
 
             var Handler = new JwtSecurityTokenHandler();
             var token = Handler.CreateToken(TokenDecs);
-            
+
             return Handler.WriteToken(token);
         }
         public string GetRefreshToken()

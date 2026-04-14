@@ -7,23 +7,18 @@ namespace LaptopServer.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class LaptopController : ControllerBase
+    public class LaptopController(ILaptopService laptopService) : ControllerBase
     {
-        private readonly ILaptopService _laptopService;
-        public LaptopController(ILaptopService laptopService)
-        {
-            _laptopService = laptopService;
-        }
         [HttpGet]
-        public async Task<IActionResult> GetAllLaptops()
+        public async Task<IActionResult> GetAllLaptops(CancellationToken ct)
         {
-            var laptops = await _laptopService.GetAllLaptops();
+            var laptops = await laptopService.GetAllLaptops(ct);
             return Ok(laptops);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<LaptopDetailsDTO>> GetById(Guid id)
+        public async Task<ActionResult<LaptopDetailsDTO>> GetById(Guid id, CancellationToken ct)
         {
-            var laptop = await _laptopService.GetById(id);
+            var laptop = await laptopService.GetById(id, ct);
             if (laptop == null)
                 return NotFound();
             else
@@ -31,9 +26,9 @@ namespace LaptopServer.Controllers
         }
         [HttpGet("admin")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<LaptopAdminDTO>> GetLaptopsAdmin()
+        public async Task<ActionResult<LaptopAdminDTO>> GetLaptopsAdmin(CancellationToken ct)
         {
-            var laptops = await _laptopService.GetLaptopsAdmin();
+            var laptops = await laptopService.GetLaptopsAdmin(ct);
             return Ok(laptops);
         }
     }

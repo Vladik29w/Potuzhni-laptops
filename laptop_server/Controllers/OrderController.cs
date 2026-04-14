@@ -7,17 +7,12 @@ namespace LaptopServer.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class OrderController : ControllerBase
+    public class OrderController(IOrderService orderService) : ControllerBase
     {
-        private readonly IOrderService _orderService;
-        public OrderController(IOrderService orderService)
-        {
-            _orderService = orderService;
-        }
         [HttpPost]
         public async Task<ActionResult<OrderDTO>> CreateOrder(CreateOrderDTO order)
         {
-            var res = await _orderService.CreateOrder(order, HttpContext.RequestAborted);
+            var res = await orderService.CreateOrder(order, HttpContext.RequestAborted);
             if (res.IsError)
                 return BadRequest(res.FirstError.Description);
             return Ok(res.Value);

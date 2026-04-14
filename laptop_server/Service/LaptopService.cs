@@ -1,46 +1,40 @@
 ﻿using LaptopServer.DB;
 using LaptopServer.DTO;
-using Microsoft.EntityFrameworkCore;
 using LaptopServer.Mappers;
+using Microsoft.EntityFrameworkCore;
 
 namespace LaptopServer.Service
 {
     public interface ILaptopService
     {
-        Task<IEnumerable<LaptopMainDTO>> GetAllLaptops();
-        Task<LaptopDetailsDTO?> GetById(Guid id);
-        Task<IEnumerable<LaptopAdminDTO>> GetLaptopsAdmin();
+        Task<IReadOnlyList<LaptopMainDTO>> GetAllLaptops(CancellationToken ct = default);
+        Task<LaptopDetailsDTO?> GetById(Guid id, CancellationToken ct = default);
+        Task<IReadOnlyList<LaptopAdminDTO>> GetLaptopsAdmin(CancellationToken ct = default);
     }
 
-    public class LaptopService : ILaptopService
+    public class LaptopService(LaptopsDBContext dbContext) : ILaptopService
     {
-        private readonly LaptopsDBContext _dbContext;
-
-        public LaptopService(LaptopsDBContext dbContext)
+        public async Task<IReadOnlyList<LaptopMainDTO>> GetAllLaptops(CancellationToken ct = default)
         {
-            _dbContext = dbContext;
-        }
-        public async Task<IEnumerable<LaptopMainDTO>> GetAllLaptops()
-        {
-            return await _dbContext.Laptops
+            return await dbContext.Laptops
                 .AsNoTracking()
                 .ToMain()
-                .ToListAsync();
+                .ToListAsync(ct);
         }
-        public async Task<LaptopDetailsDTO?> GetById(Guid id)
+        public async Task<LaptopDetailsDTO?> GetById(Guid id, CancellationToken ct = default)
         {
-            return await _dbContext.Laptops
+            return await dbContext.Laptops
                 .AsNoTracking()
                 .Where(l => l.Id == id)
                 .ToDetails()
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(ct);
         }
-        public async Task<IEnumerable<LaptopAdminDTO>> GetLaptopsAdmin()
+        public async Task<IReadOnlyList<LaptopAdminDTO>> GetLaptopsAdmin(CancellationToken ct = default)
         {
-            return await _dbContext.Laptops
+            return await dbContext.Laptops
               .AsNoTracking()
               .ToAdmin()
-              .ToListAsync();
+              .ToListAsync(ct);
         }
     }
 }

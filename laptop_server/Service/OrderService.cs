@@ -10,67 +10,77 @@ namespace LaptopServer.Service
     public interface IOrderService
     {
         Task<ErrorOr<OrderDTO>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken cancellationToken = default);
-        Task UpdateOrder(Guid orderId, PaymentStatus status);
-        Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId);
-        Task<List<OrderDTO>> GetAllOrders();
+        Task UpdateOrder(Guid orderId, PaymentStatus status, CancellationToken ct = default);
+        Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId, CancellationToken ct = default);
+        Task<IReadOnlyList<OrderDTO>> GetAllOrders(CancellationToken ct = default);
     }
-    public class OrderService : IOrderService
+    public class OrderService(LaptopsDBContext dbContext, ICartService cartService, IMonopayService monopay) : IOrderService
     {
-        private readonly ICartService _cartService;
-        private readonly IMonopayService _payService;
-        private readonly LaptopsDBContext _dbContext;
-        public OrderService(LaptopsDBContext dbContext, ICartService сartService, IMonopayService monopay)
-        {
-            _dbContext = dbContext;
-            _cartService = сartService;
-            _payService = monopay;
-        }
         public async Task<ErrorOr<OrderDTO>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken ct = default)
         {
             if (creatingOrder.CartId == Guid.Empty)
                 return Error.Validation(code: "NullCartID");
 
-            var cart = await _cartService.GetCart(creatingOrder.CartId);
+            var cart = await cartService.GetCart(creatingOrder.CartId, ct);
             if (cart == null)
                 return Error.NotFound(code: "CartNotFound", description: $"Cart with ID '{creatingOrder.CartId}' not found.");
             if (cart.Items == null || !cart.Items.Any())
                 return Error.Failure(code: "EmptyCart");
 
-            Guid orderId = Guid.NewGuid();
-            var order = OrderMapper.ToOrderEntity(creatingOrder, cart, orderId);
-            var orderdto = OrderMapper.ToDto(order);
-            var payRes = await _payService.CreateInvoice(orderdto);
-            if (payRes.IsError)
-                return payRes.Errors;
-            order.PaymentId = payRes.Value.InvoiceId;
-            order.PaymentUrl = payRes.Value.PageUrl;
-            await _dbContext.AddAsync(order, ct);
-            await _dbContext.SaveChangesAsync(ct);
-            await _cartService.ClearCart(creatingOrder.CartId);
-            return OrderMapper.ToDto(order);
+            await using var transaction = await dbContext.Database.BeginTransactionAsync(ct);
+            try
+            {
+                Guid orderId = Guid.NewGuid();
+                var order = OrderMapper.ToOrderEntity(creatingOrder, cart, orderId);
+                order.PaymentStatus = PaymentStatus.Pending;
+
+                await dbContext.AddAsync(order, ct);
+                await dbContext.SaveChangesAsync(ct);
+
+                var orderdto = OrderMapper.ToDto(order);
+                var payRes = await monopay.CreateInvoice(orderdto, ct);
+
+                if (payRes.IsError)
+                {
+                    await transaction.RollbackAsync(ct);
+                    return payRes.Errors;
+                }
+
+                order.PaymentId = payRes.Value.InvoiceId;
+                order.PaymentUrl = payRes.Value.PageUrl;
+                await dbContext.SaveChangesAsync(ct);
+                await transaction.CommitAsync(ct);
+                await cartService.ClearCart(creatingOrder.CartId, ct);
+                return OrderMapper.ToDto(order);
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync(ct);
+                return Error.Failure(code: "OrderCreatingErr");
+            }
         }
-        public async Task UpdateOrder(Guid orderId, PaymentStatus status)
+        public async Task UpdateOrder(Guid orderId, PaymentStatus status, CancellationToken ct = default)
         {
-            await _dbContext.Orders
+            await dbContext.Orders
             .Where(ord => ord.Id == orderId && ord.PaymentStatus != PaymentStatus.Success && ord.PaymentStatus != PaymentStatus.Reversed)
-            .ExecuteUpdateAsync(set => set.SetProperty(ord => ord.PaymentStatus, status));
+            .ExecuteUpdateAsync(set => set.SetProperty(ord => ord.PaymentStatus, status), ct);
         }
-        public async Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId)
+        public async Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId, CancellationToken ct = default)
         {
 
-            var order = await _dbContext.Orders
+            var order = await dbContext.Orders
                 .AsNoTracking()
                 .Where(ord => ord.Id == orderId)
                 .ToOrder()
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(ct);
 
             if (order == null)
                 return Error.NotFound(code: "OrderNotFound");
             return order;
         }
-        public async Task<List<OrderDTO>> GetAllOrders()
+        public async Task<IReadOnlyList<OrderDTO>> GetAllOrders(CancellationToken ct = default)
         {
-            return await _dbContext.Orders.AsNoTracking().ToOrder().ToListAsync();
+            return await dbContext.Orders.AsNoTracking().ToOrder().ToListAsync(ct);
         }
     }
 }

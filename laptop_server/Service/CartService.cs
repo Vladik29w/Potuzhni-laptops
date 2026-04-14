@@ -1,28 +1,23 @@
-﻿using LaptopServer.DB;
+﻿using ErrorOr;
+using LaptopServer.DB;
 using LaptopServer.DTO;
 using LaptopServer.Entities;
 using Microsoft.EntityFrameworkCore;
-using ErrorOr;
 
 namespace LaptopServer.Service
 {
     public interface ICartService
     {
-        Task<CartDTO> GetCart(Guid cartId);
-        Task<ErrorOr<CartDTO>> AddToCart(Guid cartId, Guid laptopId);
-        Task<ErrorOr<CartDTO>> RemoveFromCart(Guid cartId, Guid laptopId);
-        Task<CartDTO> ClearCart(Guid cartId);
+        Task<CartDTO> GetCart(Guid cartId, CancellationToken ct = default);
+        Task<ErrorOr<CartDTO>> AddToCart(Guid cartId, Guid laptopId, CancellationToken ct = default);
+        Task<ErrorOr<CartDTO>> RemoveFromCart(Guid cartId, Guid laptopId, CancellationToken ct = default);
+        Task<CartDTO> ClearCart(Guid cartId, CancellationToken ct = default);
     }
-    public class CartService : ICartService
+    public class CartService(LaptopsDBContext dbContext) : ICartService
     {
-        private readonly LaptopsDBContext _dbContext;
-        public CartService(LaptopsDBContext dbContext)
+        public async Task<CartDTO> GetCart(Guid cartId, CancellationToken ct = default)
         {
-            _dbContext = dbContext;
-        }
-        public async Task<CartDTO> GetCart(Guid cartId)
-        {
-            var cartItems = await _dbContext.Carts
+            var cartItems = await dbContext.Carts
                 .AsNoTracking()
                 .Where(c => c.CartId == cartId)
                 .Select(item => new CartItemDTO
@@ -33,7 +28,7 @@ namespace LaptopServer.Service
                     Quantity = item.Quantity,
                     TotalPrice = item.Laptop.Price * item.Quantity
                 })
-                .ToListAsync();
+                .ToListAsync(ct);
 
             return new CartDTO
             {
@@ -42,11 +37,11 @@ namespace LaptopServer.Service
                 GrandTotal = cartItems.Sum(i => i.TotalPrice)
             };
         }
-        public async Task<ErrorOr<CartDTO>> AddToCart(Guid cartId, Guid laptopId)
+        public async Task<ErrorOr<CartDTO>> AddToCart(Guid cartId, Guid laptopId, CancellationToken ct = default)
         {
-            if (await _dbContext.Laptops.AnyAsync(i => i.Id == laptopId))
+            if (await dbContext.Laptops.AnyAsync(i => i.Id == laptopId, ct))
             {
-                var cartItem = await _dbContext.Carts.FirstOrDefaultAsync(c => c.CartId == cartId && c.LaptopId == laptopId);
+                var cartItem = await dbContext.Carts.FirstOrDefaultAsync(c => c.CartId == cartId && c.LaptopId == laptopId, ct);
                 if (cartItem == null)
                 {
                     cartItem = new CartItemEntity
@@ -55,35 +50,35 @@ namespace LaptopServer.Service
                         LaptopId = laptopId,
                         Quantity = 1
                     };
-                    _dbContext.Add(cartItem);
+                    dbContext.Add(cartItem);
                 }
                 else
                     cartItem.Quantity++;
-                await _dbContext.SaveChangesAsync();
-                return await GetCart(cartId);
+                await dbContext.SaveChangesAsync(ct);
+                return await GetCart(cartId, ct);
             }
             else return Error.NotFound(code: "LaptopNotFound");
         }
-        public async Task<ErrorOr<CartDTO>> RemoveFromCart(Guid cartId, Guid laptopId)
+        public async Task<ErrorOr<CartDTO>> RemoveFromCart(Guid cartId, Guid laptopId, CancellationToken ct = default)
         {
-            var cartItem = await _dbContext.Carts.FirstOrDefaultAsync(c => c.CartId == cartId && c.LaptopId == laptopId);
+            var cartItem = await dbContext.Carts.FirstOrDefaultAsync(c => c.CartId == cartId && c.LaptopId == laptopId, ct);
             if (cartItem != null)
             {
                 if (cartItem.Quantity > 1)
                     cartItem.Quantity--;
                 else
-                    _dbContext.Remove(cartItem);
+                    dbContext.Remove(cartItem);
 
-                await _dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync(ct);
             }
             else return Error.NotFound(code: "CartItemNotFound");
-            return await GetCart(cartId);
+            return await GetCart(cartId, ct);
         }
-        public async Task<CartDTO> ClearCart(Guid cartId)
+        public async Task<CartDTO> ClearCart(Guid cartId, CancellationToken ct = default)
         {
-            await _dbContext.Carts
+            await dbContext.Carts
            .Where(c => c.CartId == cartId)
-           .ExecuteDeleteAsync();
+           .ExecuteDeleteAsync(ct);
             return new CartDTO { CartId = cartId };
         }
     }

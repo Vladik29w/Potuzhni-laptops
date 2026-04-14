@@ -9,22 +9,15 @@ namespace LaptopServer.Infrastructure.API
         Task<ErrorOr<List<NpSettlementAddress>>> GetCities(string cityName, CancellationToken ct = default);
         Task<ErrorOr<List<NpWarehouse>>> GetWarehouses(string settlementRef, string? searchString = null, CancellationToken ct = default);
     }
-    public class NovaPostService : INovaPostService
+    public class NovaPostService(HttpClient httpClient, IMemoryCache cache, IConfiguration configuration) : INovaPostService
     {
-        private readonly HttpClient _httpClient;
-        private readonly IMemoryCache _cache; //todo cache getOrCreate
-        private readonly string _apiKey;
         private const string ApiUrl = "https://api.novaposhta.ua/v2.0/json/";
-        public NovaPostService(HttpClient httpClient, IMemoryCache cache, IConfiguration configuration)
-        {
-            _httpClient = httpClient;
-            _cache = cache;
-            _apiKey = configuration["ApiKeys:NovaPost"] ?? throw new InvalidOperationException("Null API key");
-        }
+        private readonly string _apiKey = configuration["ApiKeys:NovaPost"] ?? throw new InvalidOperationException("Null API key");
+
         public async Task<ErrorOr<List<NpSettlementAddress>>> GetCities(string cityName, CancellationToken ct = default)
         {
             string cacheKey = $"np_city_{cityName.ToLowerInvariant()}";
-            if (_cache.TryGetValue(cacheKey, out List<NpSettlementAddress>? chCities))
+            if (cache.TryGetValue(cacheKey, out List<NpSettlementAddress>? chCities))
                 return chCities!;
             var req = new NpReq<NpSettlementsReq>
             {
@@ -36,7 +29,7 @@ namespace LaptopServer.Infrastructure.API
                     CityName = cityName
                 }
             };
-            var response = await _httpClient.PostAsJsonAsync(ApiUrl, req, ct);
+            var response = await httpClient.PostAsJsonAsync(ApiUrl, req, ct);
             response.EnsureSuccessStatusCode();
 
             var res = await response.Content.ReadFromJsonAsync<NpRespone<NpSettlementsData>>();
@@ -44,17 +37,16 @@ namespace LaptopServer.Infrastructure.API
             if (res != null && res.Success && res.Data.Count > 0)
             {
                 var data = res.Data.First().Addresses;
-                _cache.Set(cacheKey, data, TimeSpan.FromDays(3));
+                cache.Set(cacheKey, data, TimeSpan.FromDays(3));
                 return data;
             }
-            
             return Error.Failure(code: "GetCityFail");
         }
         public async Task<ErrorOr<List<NpWarehouse>>> GetWarehouses(string settlementRef, string? searchString = null, CancellationToken ct = default)
         {
-            string chSearch = searchString ?? "all"; 
+            string chSearch = searchString ?? "all";
             string cacheKey = $"np_warehouse_{settlementRef}_{chSearch.ToLowerInvariant()}";
-            if (_cache.TryGetValue(cacheKey, out List<NpWarehouse>? chCities))
+            if (cache.TryGetValue(cacheKey, out List<NpWarehouse>? chCities))
                 return chCities!;
             var req = new NpReq<NpGetWarehouseReq>
             {
@@ -67,7 +59,7 @@ namespace LaptopServer.Infrastructure.API
                     FindByString = searchString,
                 }
             };
-            var response = await _httpClient.PostAsJsonAsync(ApiUrl, req, ct);
+            var response = await httpClient.PostAsJsonAsync(ApiUrl, req, ct);
             response.EnsureSuccessStatusCode();
 
             var res = await response.Content.ReadFromJsonAsync<NpRespone<NpWarehouse>>();
@@ -75,13 +67,10 @@ namespace LaptopServer.Infrastructure.API
             if (res != null && res.Success)
             {
                 var data = res.Data;
-                _cache.Set(cacheKey, data, TimeSpan.FromHours(6));
+                cache.Set(cacheKey, data, TimeSpan.FromHours(6));
                 return data;
             }
-
             return Error.Failure(code: "GetWarehouseFail");
-
-
         }
     }
 }

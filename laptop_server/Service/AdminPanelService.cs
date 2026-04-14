@@ -8,31 +8,26 @@ namespace LaptopServer.Service
 {
     public interface IAdminPanelService
     {
-        Task<ErrorOr<LaptopAdminDTO>> AddLaptop(LaptopAdminDTO laptop);
-        Task<ErrorOr<Updated>> UpdateLaptop(LaptopAdminDTO laptop);
-        Task<ErrorOr<Deleted>> DeleteLaptop(Guid id);
-        Task<List<OrderStatsDTO>> GetOrderStats(int days);
+        Task<ErrorOr<LaptopAdminDTO>> AddLaptop(LaptopAdminDTO laptop, CancellationToken ct = default);
+        Task<ErrorOr<Updated>> UpdateLaptop(LaptopAdminDTO laptop, CancellationToken ct = default);
+        Task<ErrorOr<Deleted>> DeleteLaptop(Guid id, CancellationToken ct = default);
+        Task<IReadOnlyList<OrderStatsDTO>> GetOrderStats(int days, CancellationToken ct = default);
     }
-    public class AdminPanelService : IAdminPanelService
+    public class AdminPanelService(LaptopsDBContext dbContext) : IAdminPanelService
     {
-        private readonly LaptopsDBContext _dbContext;
-        public AdminPanelService(LaptopsDBContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-        public async Task<ErrorOr<LaptopAdminDTO>> AddLaptop(LaptopAdminDTO laptop)
+        public async Task<ErrorOr<LaptopAdminDTO>> AddLaptop(LaptopAdminDTO laptop, CancellationToken ct = default)
         {
             if (laptop.Id == Guid.Empty)
                 laptop.Id = Guid.NewGuid();
 
             var entity = laptop.ToEntity();
-            _dbContext.Add(entity);
-            await _dbContext.SaveChangesAsync();
+            dbContext.Add(entity);
+            await dbContext.SaveChangesAsync(ct);
             return laptop;
         }
-        public async Task<ErrorOr<Updated>> UpdateLaptop(LaptopAdminDTO laptop)
+        public async Task<ErrorOr<Updated>> UpdateLaptop(LaptopAdminDTO laptop, CancellationToken ct = default)
         {
-            var exLaptop = await _dbContext.Laptops.FindAsync(laptop.Id);
+            var exLaptop = await dbContext.Laptops.FindAsync([laptop.Id], ct);
             if (exLaptop == null)
                 return Error.NotFound(code: "LaptopNotFound");
 
@@ -43,21 +38,21 @@ namespace LaptopServer.Service
             exLaptop.RAM = laptop.RAM;
             exLaptop.GPU = laptop.GPU;
 
-            await _dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(ct);
             return Result.Updated;
         }
-        public async Task<ErrorOr<Deleted>> DeleteLaptop(Guid id)
+        public async Task<ErrorOr<Deleted>> DeleteLaptop(Guid id, CancellationToken ct = default)
         {
-            var deletedCount = await _dbContext.Laptops.Where(l => l.Id == id).ExecuteDeleteAsync();
+            var deletedCount = await dbContext.Laptops.Where(l => l.Id == id).ExecuteDeleteAsync(ct);
             if (deletedCount == 0)
                 return Error.NotFound(code: "LaptopNotFound");
 
             return Result.Deleted;
         }
-        public async Task<List<OrderStatsDTO>> GetOrderStats(int days)
+        public async Task<IReadOnlyList<OrderStatsDTO>> GetOrderStats(int days, CancellationToken ct = default)
         {
             var startDay = DateTime.UtcNow.AddDays(-days).Date;
-            var groupedData = await _dbContext.Orders
+            var groupedData = await dbContext.Orders
                 .AsNoTracking()
                 .Where(o => o.CreatedAt >= startDay)
                 .GroupBy(o => o.CreatedAt.Date)
@@ -68,7 +63,7 @@ namespace LaptopServer.Service
                     Sum = g.Sum(o => o.TotalPrice)
                 })
                 .OrderBy(s => s.Date)
-                .ToListAsync();
+                .ToListAsync(ct);
 
             return groupedData
                 .Select(o => new OrderStatsDTO(o.Date, o.Quantity, o.Sum))

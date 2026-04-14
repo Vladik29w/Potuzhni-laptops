@@ -39,11 +39,11 @@ namespace LaptopServer.DTO
         public PayEnum PayMethod { get; init; }
         public DeliveryEnum DeliveryMethod { get; init; }
         public required string PhoneNumber { get; init; }
-        public string? Email { get; set; }
-        public string? DeliveryCityRef { get; set; }
-        public string? DeliveryCityName { get; set; }
-        public string? DeliveryWarehouseRef { get; set; }
-        public string? DeliveryWarehouseName { get; set; }
+        public string? Email { get; init; }
+        public string? DeliveryCityRef { get; init; }
+        public string? DeliveryCityName { get; init; }
+        public string? DeliveryWarehouseRef { get; init; }
+        public string? DeliveryWarehouseName { get; init; }
     }
     public record OrderStatsDTO(DateTime Date, int Quantity, decimal Sum);
 }

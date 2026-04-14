@@ -1,10 +1,7 @@
-﻿using Azure.Core;
-using ErrorOr;
+﻿using ErrorOr;
 using LaptopServer.DTO;
 using LaptopServer.Enums;
-using LaptopServer.Service;
 using Microsoft.Extensions.Caching.Memory;
-using NuGet.Protocol;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -14,22 +11,16 @@ namespace LaptopServer.Infrastructure.API
 {
     public interface IMonopayService
     {
-        Task<ErrorOr<MonopayResponse>> CreateInvoice(OrderDTO order);
-        Task <ErrorOr<(Guid orderId, PaymentStatus status)>> CheckWebhook(string body, string xSign);
+        Task<ErrorOr<MonopayResponse>> CreateInvoice(OrderDTO order, CancellationToken ct = default);
+        Task<ErrorOr<(Guid orderId, PaymentStatus status)>> CheckWebhook(string body, string xSign, CancellationToken ct = default);
     }
-    public class MonopayService : IMonopayService
+    public class MonopayService(HttpClient httpClient, IConfiguration configuration, IMemoryCache cache) : IMonopayService
     {
-        private readonly HttpClient _httpClient;
-        private readonly IMemoryCache _cache;
         private const string monoUrl = "https://api.monobank.ua/api/merchant";
         private const string webhook = "https://laptopserver-app-20260330234553.agreeableplant-e8507c58.polandcentral.azurecontainerapps.io/Webhook/getWebhook";
         private const string redirect = "https://potuzhni-laptops-atbmfyb4hafdhyb4.polandcentral-01.azurewebsites.net";
-        public MonopayService(HttpClient httpClient, IConfiguration configuration, IMemoryCache cache)
-        {
-            _httpClient = httpClient;
-            _cache = cache;
-        }
-        public async Task<ErrorOr<MonopayResponse>> CreateInvoice(OrderDTO order)
+
+        public async Task<ErrorOr<MonopayResponse>> CreateInvoice(OrderDTO order, CancellationToken ct = default)
         {
             var req = new MonopayReq
             {
@@ -50,21 +41,21 @@ namespace LaptopServer.Infrastructure.API
                     ).ToList()
                 }
             };
-            var response = await _httpClient.PostAsJsonAsync($"{monoUrl}/invoice/create", req);
+            var response = await httpClient.PostAsJsonAsync($"{monoUrl}/invoice/create", req, ct);
 
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<MonopayResponse>();
             }
-            var errorJson = await response.Content.ReadAsStringAsync();
+            var errorJson = await response.Content.ReadAsStringAsync(ct);
 
             Console.WriteLine($"[MONO ERROR] Status: {response.StatusCode}, Body: {errorJson}");
 
             return Error.Failure(code: "Mono.ApiError", description: errorJson);
         }
-        public async Task<ErrorOr<(Guid orderId, PaymentStatus status)>> CheckWebhook(string body, string xSign)
+        public async Task<ErrorOr<(Guid orderId, PaymentStatus status)>> CheckWebhook(string body, string xSign, CancellationToken ct = default)
         {
-            if (!await VerifyResponse(body, xSign))
+            if (!await VerifyResponse(body, xSign, ct))
                 return Error.Failure(code: "MonoVerifyError");
 
             var data = JsonSerializer.Deserialize<MonopayWebhook>(body);
@@ -82,14 +73,14 @@ namespace LaptopServer.Infrastructure.API
             };
             return (orderId, status);
         }
-        private async Task<bool> VerifyResponse(string body, string xSign)
+        private async Task<bool> VerifyResponse(string body, string xSign, CancellationToken ct = default)
         {
             try
             {
-                var chPubKey = await _cache.GetOrCreateAsync("MonobankPubKey", async (entry) =>
+                var chPubKey = await cache.GetOrCreateAsync("MonobankPubKey", async (entry) =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
-                    var response = await _httpClient.GetFromJsonAsync<JsonNode>($"{monoUrl}/pubkey");
+                    var response = await httpClient.GetFromJsonAsync<JsonNode>($"{monoUrl}/pubkey", cancellationToken: ct);
                     return response?["key"]?.ToString();
                 });
                 if (string.IsNullOrEmpty(chPubKey)) return false;

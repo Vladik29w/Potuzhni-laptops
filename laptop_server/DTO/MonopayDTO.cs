@@ -13,13 +13,13 @@ namespace LaptopServer.DTO
     public record MonopayReq
     {
         [JsonPropertyName("amount")]
-        public required int Amount { get; set; } //price kopeyki
+        public required int Amount { get; init; }
         [JsonPropertyName("merchantPaymInfo")]
-        public required MerchantPaymInfo MerchantPaymInfo { get; set; }
+        public required MerchantPaymInfo MerchantPaymInfo { get; init; }
         [JsonPropertyName("redirectUrl")]
-        public required string RedirectUrl { get; set; }
+        public required string RedirectUrl { get; init; }
         [JsonPropertyName("webhookUrl")]
-        public required string WebhookUrl { get; set; }
+        public required string WebhookUrl { get; init; }
     }
     public record MonopayWebhook
     {
@@ -35,22 +35,22 @@ namespace LaptopServer.DTO
     public record MerchantPaymInfo
     {
         [JsonPropertyName("reference")]
-        public required string OrderId {  get; set; }
+        public required string OrderId { get; init; }
         [JsonPropertyName("destination")]
-        public string Destination {  get; set; }
+        public string Destination { get; init; } = string.Empty;
         [JsonPropertyName("basketOrder")]
-        public List<BasketItem> BasketOrder { get; set; } = new();
+        public List<BasketItem> BasketOrder { get; init; } = new();
     }
     public record BasketItem
     {
         [JsonPropertyName("name")]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; init; } = string.Empty;
         [JsonPropertyName("qty")]
-        public int Quantity { get; set; } = 1;
+        public int Quantity { get; init; } = 1;
         [JsonPropertyName("sum")]
-        public int Sum { get; set; } = 0;
+        public int Sum { get; init; } = 0;
         [JsonPropertyName("code")]
-        public string LaptopId { get; set; } = string.Empty;
+        public string LaptopId { get; init; } = string.Empty;
     }
 
 }

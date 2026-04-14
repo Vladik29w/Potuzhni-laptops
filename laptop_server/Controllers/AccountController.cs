@@ -12,25 +12,20 @@ namespace LaptopServer.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AccountController : ControllerBase
+    public class AccountController(IAccountService accountService) : ControllerBase
     {
-        private readonly IAccountService _accountService;
-        public AccountController(IAccountService accountService)
-        {
-            _accountService = accountService;
-        }
         [HttpPost("register")]
-        public async Task<ActionResult<UserDTO>> UserRegister(RegisterDTO register)
+        public async Task<ActionResult<UserDTO>> UserRegister(RegisterDTO register, CancellationToken ct)
         {
-            var userTokensDTO = await _accountService.UserRegister(register);
+            var userTokensDTO = await accountService.UserRegister(register, ct);
             if (userTokensDTO.IsError)
                 return Unauthorized(userTokensDTO.FirstError.Code);
             return AuthLogic(userTokensDTO.Value);
         }
         [HttpPost("login")]
-        public async Task<ActionResult<UserDTO>> UserLogin(LoginDTO login)
+        public async Task<ActionResult<UserDTO>> UserLogin(LoginDTO login, CancellationToken ct)
         {
-            var userTokensDTO = await _accountService.UserLogin(login);
+            var userTokensDTO = await accountService.UserLogin(login, ct);
             if (userTokensDTO.IsError)
                 return Unauthorized(userTokensDTO.FirstError.Code);
 
@@ -38,20 +33,20 @@ namespace LaptopServer.Controllers
         }
         [Authorize]
         [HttpPost("logout")]
-        public async Task<ActionResult> Logout()
+        public async Task<ActionResult> Logout(CancellationToken ct)
         {
             var refToken = Request.Cookies["refToken"];
             if (refToken == null) return BadRequest();
-            await _accountService.UserLogout(refToken);
+            await accountService.UserLogout(refToken, ct);
             Response.ClearCookies();
             return Ok();
         }
         [HttpPost("refresh")]
-        public async Task<ActionResult<UserDTO>> Refresh()
+        public async Task<ActionResult<UserDTO>> Refresh(CancellationToken ct)
         {
             var refToken = Request.Cookies["refToken"];
             if (string.IsNullOrEmpty(refToken)) return BadRequest();
-            var userTokensDTO = await _accountService.RefreshUserToken(refToken);
+            var userTokensDTO = await accountService.RefreshUserToken(refToken, ct);
             return AuthLogic(userTokensDTO.Value);
         }
         [Authorize]

@@ -8,37 +8,32 @@ namespace LaptopServer.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CartController : ControllerBase
+    public class CartController(ICartService cartService) : ControllerBase
     {
-        private readonly ICartService _cartService;
-        public CartController(ICartService cartService)
-        {
-            _cartService = cartService;
-        }
         [HttpGet("{CartId}")]
-        public async Task<ActionResult<CartDTO>> GetCart(Guid cartId)
+        public async Task<ActionResult<CartDTO>> GetCart(Guid cartId, CancellationToken ct)
         {
-            var cart = await _cartService.GetCart(cartId);
+            var cart = await cartService.GetCart(cartId, ct);
             return Ok(cart);
         }
         [HttpDelete("{CartId}")]
-        public async Task<ActionResult<CartDTO>> ClearCart(Guid cartId)
+        public async Task<ActionResult<CartDTO>> ClearCart(Guid cartId, CancellationToken ct)
         {
-            var updCart = await _cartService.ClearCart(cartId);
+            var updCart = await cartService.ClearCart(cartId, ct);
             return Ok(updCart);
         }
         [HttpPost("{cartId}/{laptopId}")]
-        public async Task<ActionResult<CartDTO>> AddToCart(Guid cartId, Guid laptopId)
+        public async Task<ActionResult<CartDTO>> AddToCart(Guid cartId, Guid laptopId, CancellationToken ct)
         {
-            var result = await _cartService.AddToCart(cartId, laptopId);
+            var result = await cartService.AddToCart(cartId, laptopId, ct);
             if (result.IsError)
                 return NotFound(result.FirstError.Code);
             return Ok(result.Value);
         }
         [HttpDelete("{cartId}/{laptopId}")]
-        public async Task<ActionResult<CartDTO>> RemoveFromCart(Guid cartId, Guid laptopId)
+        public async Task<ActionResult<CartDTO>> RemoveFromCart(Guid cartId, Guid laptopId, CancellationToken ct)
         {
-            var result = await _cartService.RemoveFromCart(cartId, laptopId);
+            var result = await cartService.RemoveFromCart(cartId, laptopId, ct);
             if (result.IsError)
                 return NotFound(result.FirstError.Code);
             return Ok(result.Value);

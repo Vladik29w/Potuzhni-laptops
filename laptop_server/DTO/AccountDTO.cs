@@ -4,8 +4,8 @@ namespace LaptopServer.DTO
 {
     public record UserDTO
     {
-        public string Email { get; set; } = string.Empty;
-        public List<string> Roles { get; set; } = new List<string>();
+        public string Email { get; init; } = string.Empty;
+        public List<string> Roles { get; init; } = new List<string>();
     }
     public record RegisterDTO
     {
@@ -15,8 +15,8 @@ namespace LaptopServer.DTO
     }
     public record LoginDTO
     {
-        public required string Email { get; set; }
-        public required string Password { get; set; }
+        public required string Email { get; init; }
+        public required string Password { get; init; }
     }
     public record RefreshTokenDTO
     {
@@ -31,10 +31,9 @@ namespace LaptopServer.DTO
     }
     public record UserTokensDTO
     {
-        public UserDTO User { get; set; }
-        public required string Token {  get; set; }
-        public required string RefrehToken { get; set; }
-
+        public UserDTO User { get; init; }
+        public required string Token { get; init; }
+        public required string RefrehToken { get; init; }
     }
 
 }
