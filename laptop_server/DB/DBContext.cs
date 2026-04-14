@@ -9,7 +9,8 @@ namespace LaptopServer.DB
     {
         public LaptopsDBContext(DbContextOptions<LaptopsDBContext> options) : base(options) { }
         public DbSet<LaptopEntity> Laptops { get; set; }
-        public DbSet<CartItemEntity> Carts { get; set; }
+        public DbSet<CartEntity> Carts { get; set; }
+        public DbSet<CartItemEntity> CartItems { get; set; }
         public DbSet<OrderItemEntity> OrderItems { get; set; }
         public DbSet<OrderEntity> Orders { get; set; }
 
@@ -20,7 +21,13 @@ namespace LaptopServer.DB
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<CartItemEntity>()
-                .HasKey(op => new { op.CartId, op.LaptopId });
+                .HasKey(ci => new { ci.CartId, ci.LaptopId });
+
+            modelBuilder.Entity<CartEntity>()
+                .HasMany(c => c.CartItems)
+                .WithOne(i => i.Cart)
+                .HasForeignKey(i => i.CartId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<OrderEntity>()
                 .HasMany(a => a.OrderItems)
