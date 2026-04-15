@@ -1,6 +1,7 @@
 using LaptopServer.DB;
 using LaptopServer.Infrastructure.API;
 using LaptopServer.Service;
+using LaptopServer.Services.Background_services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAdminPanelService, AdminPanelService>();
+//Background services
+builder.Services.AddHostedService<CartCleanerService>();
 //HTTP Clients
 builder.Services.AddHttpClient<INovaPostService, NovaPostService>();
 builder.Services.AddHttpClient<IMonopayService, MonopayService>((provider, client) =>

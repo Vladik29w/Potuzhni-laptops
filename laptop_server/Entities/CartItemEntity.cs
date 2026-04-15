@@ -12,7 +12,7 @@ namespace LaptopServer.Entities
     public class CartItemEntity
     {
         public Guid CartId { get; set; }
-        public virtual CartEntity Cart { get; set; } = null!;
+        public virtual CartEntity Cart { get; set; } = null!; 
         public Guid LaptopId { get; set; }
         public virtual LaptopEntity Laptop { get; init; } = null!;
         [Range(1, int.MaxValue)]
