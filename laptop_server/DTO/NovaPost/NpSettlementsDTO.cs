@@ -26,6 +26,8 @@ namespace LaptopServer.DTO.NovaPost
         public required string DeliveryCity { get; init; }
         [JsonPropertyName("Ref")]
         public required string Ref { get; init; }
+        [JsonPropertyName("SettlementRef")]
+        public string? SettlementRef { get; init; }
         [JsonPropertyName("MainDescription")]
         public required string MainDescription { get; init; }
     }

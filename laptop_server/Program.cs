@@ -22,14 +22,15 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAdminPanelService, AdminPanelService>();
 //Background services
 builder.Services.AddHostedService<CartCleanerService>();
+builder.Services.AddHostedService<NpCacheService>();
 //HTTP Clients
-builder.Services.AddHttpClient<INovaPostService, NovaPostService>();
+builder.Services.AddHttpClient<INovaPostService, NovaPostService>().AddStandardResilienceHandler();
 builder.Services.AddHttpClient<IMonopayService, MonopayService>((provider, client) =>
 {
     var config = provider.GetRequiredService<IConfiguration>();
     var key = config["ApiKeys:Monopay"] ?? throw new InvalidOperationException("Null Monopay token");
     client.DefaultRequestHeaders.Add("X-Token", key);
-});
+}).AddStandardResilienceHandler();
 //Other services
 builder.Services.AddMemoryCache();
 //CORS

@@ -10,7 +10,9 @@ import { OrderResponce, PayEnum, DeliveryEnum } from '../../DTO/order-dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, Observable, distinctUntilChanged, filter, of, switchMap, catchError } from 'rxjs';
 import { AsyncPipe, DOCUMENT } from '@angular/common';
-
+//TODO
+//баг з автокомплітом НП
+//баг з оплатою кешом
 @Component({
   selector: 'app-order.component',
   standalone: true,
@@ -77,7 +79,7 @@ export class OrderComponent {
   selectCity(city: NpSettlementAddress) {
     this.orderForm.patchValue({
       citySearch: city.Present,
-      cityRef: city.Ref,
+      cityRef: city.SettlementRef || city.Ref,
       warehouseSearch: '',
       warehouseRef: ''
     });

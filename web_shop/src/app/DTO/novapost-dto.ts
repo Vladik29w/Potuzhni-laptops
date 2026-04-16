@@ -24,6 +24,7 @@ export interface NpSettlementAddress {
   Present: string;
   DeliveryCity: string;
   Ref: string;
+  SettlementRef?: string;
   MainDescription: string;
 }
 // Warehouse DTO
@@ -37,6 +38,6 @@ export interface NpGetWarehouseReq {
 export interface NpWarehouse {
   Description?: string;
   Ref: string;
-  CityRef: string;
+  SettlementRef: string;
   TypeOfWarehouseRef?: string;
 }

@@ -13,8 +13,8 @@ namespace LaptopServer.DB
         public DbSet<CartItemEntity> CartItems { get; set; }
         public DbSet<OrderItemEntity> OrderItems { get; set; }
         public DbSet<OrderEntity> Orders { get; set; }
-
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<NpWarehousesEntity> NpWarehouses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,6 +34,9 @@ namespace LaptopServer.DB
                 .WithOne(b => b.Order)
                 .HasForeignKey(b => b.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<NpWarehousesEntity>()
+                .HasKey(k => k.Ref);
         }
     }
 }

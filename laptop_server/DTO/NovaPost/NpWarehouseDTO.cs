@@ -5,7 +5,7 @@ namespace LaptopServer.DTO.NovaPost
     public record NpGetWarehouseReq
     {
         [JsonPropertyName("SettlementRef")]
-        public required string SettlementRef { get; init; }
+        public string? SettlementRef { get; init; }
         public string? CityRef { get; init; }
 
         [JsonPropertyName("FindByString")]
@@ -23,8 +23,8 @@ namespace LaptopServer.DTO.NovaPost
         public string? Description { get; init; }
         [JsonPropertyName("Ref")]
         public required string Ref { get; init; }
-        [JsonPropertyName("CityRef")]
-        public required string CityRef { get; init; }
+        [JsonPropertyName("SettlementRef")]
+        public required string SettlementRef { get; init; }
         [JsonPropertyName("TypeOfWarehouseRef")]
         public string? TypeOfWarehouseRef { get; init; }
     }
