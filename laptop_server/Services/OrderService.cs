@@ -32,22 +32,38 @@ namespace LaptopServer.Service
             {
                 Guid orderId = Guid.NewGuid();
                 var order = OrderMapper.ToOrderEntity(creatingOrder, cart, orderId);
-                order.PaymentStatus = PaymentStatus.Pending;
+                order.PaymentStatus = creatingOrder.PayMethod == PayEnum.Cash ? PaymentStatus.Success : PaymentStatus.Pending;
 
                 await dbContext.AddAsync(order, ct);
                 await dbContext.SaveChangesAsync(ct);
 
-                var orderdto = OrderMapper.ToDto(order);
-                var payRes = await monopay.CreateInvoice(orderdto, ct);
-
-                if (payRes.IsError)
+                if (creatingOrder.PayMethod == PayEnum.Online)
                 {
-                    await transaction.RollbackAsync(ct);
-                    return payRes.Errors;
+                    var orderdto = OrderMapper.ToDto(order);
+                    var payRes = await monopay.CreateInvoice(orderdto, ct);
+
+                    if (payRes.IsError)
+                    {
+                        await transaction.RollbackAsync(ct);
+                        return payRes.Errors;
+                    }
+
+                    order.PaymentId = payRes.Value.InvoiceId;
+                    order.PaymentUrl = payRes.Value.PageUrl;
+                }
+                else if (creatingOrder.PayMethod == PayEnum.Cash)
+                {
+                    order.PaymentId = null;
+                    order.PaymentUrl = null;
+                }
+                if (creatingOrder.DeliveryMethod == DeliveryEnum.Pickup)
+                {
+                    order.DeliveryCityRef = null;
+                    order.DeliveryCityName = null;
+                    order.DeliveryWarehouseRef = null;
+                    order.DeliveryWarehouseName = null;
                 }
 
-                order.PaymentId = payRes.Value.InvoiceId;
-                order.PaymentUrl = payRes.Value.PageUrl;
                 await dbContext.SaveChangesAsync(ct);
                 await transaction.CommitAsync(ct);
                 await cartService.ClearCart(creatingOrder.CartId, ct);

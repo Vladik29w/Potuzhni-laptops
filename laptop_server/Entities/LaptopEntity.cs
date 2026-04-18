@@ -6,7 +6,7 @@ namespace LaptopServer.Entities
     public class LaptopEntity
     {
         public Guid Id { get; set; }
-        [MaxLength(128)]
+        [MaxLength(64)]
         public required string Name { get; set; }
         [Precision(18, 2)]
         [Range(typeof(decimal), "0", "9999999.99")]

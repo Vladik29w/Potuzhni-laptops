@@ -6,7 +6,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angula
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { CartDTO } from '../../DTO/cart-dto';
 import { NpSettlementAddress, NpWarehouse } from '../../DTO/novapost-dto';
-import { OrderResponce, PayEnum, DeliveryEnum } from '../../DTO/order-dto';
+import { OrderResponce, CreateOrderDTO, PayEnum, DeliveryEnum } from '../../DTO/order-dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, Observable, distinctUntilChanged, filter, of, switchMap, catchError } from 'rxjs';
 import { AsyncPipe, DOCUMENT } from '@angular/common';
@@ -74,6 +74,30 @@ export class OrderComponent {
     this._cartService.getCart()
       .pipe(takeUntilDestroyed())
       .subscribe((data) => this.cart = data);
+
+    // Handle dynamic validation for delivery fields
+    this.orderForm.controls.delivery.valueChanges
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((deliveryMethod) => {
+        const cityRefControl = this.orderForm.controls.cityRef;
+        const warehouseRefControl = this.orderForm.controls.warehouseRef;
+
+        if (deliveryMethod === DeliveryEnum.NovaPost) {
+          // Required for Nova Post
+          cityRefControl.setValidators([Validators.required]);
+          warehouseRefControl.setValidators([Validators.required]);
+        } else if (deliveryMethod === DeliveryEnum.PickUp) {
+          // Not required for Pickup
+          cityRefControl.setValidators([]);
+          warehouseRefControl.setValidators([]);
+          // Clear the values
+          cityRefControl.setValue('');
+          warehouseRefControl.setValue('');
+        }
+
+        cityRefControl.updateValueAndValidity();
+        warehouseRefControl.updateValueAndValidity();
+      });
   }
 
   selectCity(city: NpSettlementAddress) {
@@ -101,21 +125,25 @@ export class OrderComponent {
 
     const { pay, delivery, phone, email, cityRef, citySearch, warehouseRef, warehouseSearch } = this.orderForm.getRawValue();
 
-    this._orderService.createOrder({
+    const orderData: CreateOrderDTO = {
       cartId: this._cartService.cartId,
       payMethod: pay,
       deliveryMethod: delivery,
       phoneNumber: phone,
       email: email,
-      deliveryCityRef: cityRef,
-      deliveryCityName: citySearch,
-      deliveryWarehouseRef: warehouseRef,
-      deliveryWarehouseName: warehouseSearch
-    }).pipe(takeUntilDestroyed(this._destroyRef))
+      ...(delivery === DeliveryEnum.NovaPost && {
+        deliveryCityRef: cityRef,
+        deliveryCityName: citySearch,
+        deliveryWarehouseRef: warehouseRef,
+        deliveryWarehouseName: warehouseSearch
+      })
+    };
+
+    this._orderService.createOrder(orderData).pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
       next: (res: OrderResponce) => {
-        console.log(`Order created: ${res.orderId}`);
-        
+          console.log(`Order created: ${res.orderId}`);
+          this._document.location.href = "/";
         if (pay === PayEnum.Online && res.paymentUrl) {
           this._document.location.href = res.paymentUrl;
         } else {
