@@ -14,8 +14,14 @@ namespace LaptopServer.Controllers
         {
             var res = await orderService.CreateOrder(order, HttpContext.RequestAborted);
             if (res.IsError)
-                return BadRequest(res.FirstError.Description);
+                return BadRequest(res.FirstError.Code);
             return Ok(res.Value);
+        }
+        [HttpPost("{orderId}")]
+        public async Task<IActionResult> ConfirmOrder(Guid orderId)
+        {
+            await orderService.ConfirmOrder(orderId);
+            return Ok(orderId);
         }
     }
 }

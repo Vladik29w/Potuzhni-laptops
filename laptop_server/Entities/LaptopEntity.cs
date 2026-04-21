@@ -19,5 +19,8 @@ namespace LaptopServer.Entities
         public int RAM { get; set; } = 0;
         [MaxLength(64)]
         public string? GPU { get; set; }
+        public double VolumeGeneral { get; set; } = 0.2;
+        public double Weight { get; set; } = 3;
+
     }
 }

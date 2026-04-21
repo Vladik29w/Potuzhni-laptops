@@ -1,7 +1,10 @@
 using LaptopServer.DB;
 using LaptopServer.Infrastructure.API;
+using LaptopServer.Infrastructure.API.NovaPost;
 using LaptopServer.Service;
 using LaptopServer.Services.Background_services;
+using LaptopServer.Services.Background;
+using LaptopServer.Infrastructure.Notification;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,11 +23,14 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAdminPanelService, AdminPanelService>();
+builder.Services.AddScoped<INovaPostDbService, NovaPostDbService>();
 //Background services
-builder.Services.AddHostedService<CartCleanerService>();
-builder.Services.AddHostedService<NpCacheService>();
+builder.Services.AddHostedService<CartCleanerBgService>();
+builder.Services.AddHostedService<NpCacheBgService>();
+builder.Services.AddHostedService<NpInternetDocBgService>();
+
 //HTTP Clients
-builder.Services.AddHttpClient<INovaPostService, NovaPostService>().AddStandardResilienceHandler();
+builder.Services.AddHttpClient<INovaPostApiService, NovaPostApiService>().AddStandardResilienceHandler();
 builder.Services.AddHttpClient<IMonopayService, MonopayService>((provider, client) =>
 {
     var config = provider.GetRequiredService<IConfiguration>();
@@ -33,6 +39,9 @@ builder.Services.AddHttpClient<IMonopayService, MonopayService>((provider, clien
 }).AddStandardResilienceHandler();
 //Other services
 builder.Services.AddMemoryCache();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+//Channels
+builder.Services.AddSingleton<OrderProcessingChannel>();
 //CORS
 builder.Services.AddCors(options =>
 {

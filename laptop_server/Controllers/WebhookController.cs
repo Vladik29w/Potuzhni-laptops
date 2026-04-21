@@ -24,7 +24,8 @@ namespace LaptopServer.Controllers
                 return Problem(res.FirstError.Code);
             logger.LogInformation($"Get webhook for {res.Value.orderId}");
             await orderService.UpdateOrder(res.Value.orderId, res.Value.status, ct);
-
+            if (res.Value.status == PaymentStatus.Success)
+                await orderService.ConfirmOrder(res.Value.orderId, ct);
             return res.Match<IActionResult>(
                 Success => Ok(),
                 err => Problem(err[0].Code)

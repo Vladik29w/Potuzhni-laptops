@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LaptopServer.Services.Background_services
 {
-    public class CartCleanerService(IServiceScopeFactory scopeFactory, ILogger<CartCleanerService> logger, IHostApplicationLifetime lifetime) : BackgroundService
+    public class CartCleanerBgService(IServiceScopeFactory scopeFactory, ILogger<CartCleanerBgService> logger, IHostApplicationLifetime lifetime) : BackgroundService
     {
         private readonly PeriodicTimer timer = new(TimeSpan.FromDays(1));
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

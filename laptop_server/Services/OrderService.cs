@@ -3,7 +3,11 @@ using LaptopServer.DB;
 using LaptopServer.DTO;
 using LaptopServer.Enums;
 using LaptopServer.Infrastructure.API;
+using LaptopServer.Infrastructure.Notification;
+using LaptopServer.Mappers;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Channels;
 
 namespace LaptopServer.Service
 {
@@ -13,8 +17,10 @@ namespace LaptopServer.Service
         Task UpdateOrder(Guid orderId, PaymentStatus status, CancellationToken ct = default);
         Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId, CancellationToken ct = default);
         Task<IReadOnlyList<OrderDTO>> GetAllOrders(CancellationToken ct = default);
+        Task<ErrorOr<CustomerInfoDTO>> GetCustomerInfo(Guid orderId, CancellationToken ct = default);
+        Task ConfirmOrder(Guid orderId, CancellationToken ct = default);
     }
-    public class OrderService(LaptopsDBContext dbContext, ICartService cartService, IMonopayService monopay) : IOrderService
+    public class OrderService(LaptopsDBContext dbContext, ICartService cartService, IMonopayService monopay, IMediator mediator) : IOrderService
     {
         public async Task<ErrorOr<OrderDTO>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken ct = default)
         {
@@ -94,9 +100,27 @@ namespace LaptopServer.Service
                 return Error.NotFound(code: "OrderNotFound");
             return order;
         }
+        public async Task ConfirmOrder(Guid orderId, CancellationToken ct = default)
+        {
+            int confirmedOrders = await dbContext.Orders.Where(ord => ord.Id == orderId).ExecuteUpdateAsync(set => set.SetProperty(ord => ord.IsConfirmed, true), ct);
+            if (confirmedOrders > 0)
+                await mediator.Publish(new OrderNotification(orderId), ct);
+        }
         public async Task<IReadOnlyList<OrderDTO>> GetAllOrders(CancellationToken ct = default)
         {
             return await dbContext.Orders.AsNoTracking().ToOrder().ToListAsync(ct);
+        }
+        public async Task<ErrorOr<CustomerInfoDTO>> GetCustomerInfo(Guid orderId, CancellationToken ct = default)
+        {
+            var customer = await dbContext.Orders
+                .AsNoTracking()
+                .Where(ord => ord.Id == orderId)
+                .Select(c => c.CustomerInfo)
+                .ToCustomerInfoDto()
+                .FirstOrDefaultAsync(ct);
+            if (customer == null)
+                return Error.NotFound(code: "CustomerInfoNotFound");
+            return customer;
         }
     }
 }

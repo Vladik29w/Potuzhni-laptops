@@ -1,10 +1,10 @@
 ﻿using LaptopServer.DTO.NovaPost;
-using LaptopServer.Infrastructure.API;
+using LaptopServer.Infrastructure.API.NovaPost;
 using System.Threading.Channels;
 
 namespace LaptopServer.Services.Background_services
 {
-    public class NpCacheService(IServiceScopeFactory scopeFactory, ILogger<NpCacheService> logger, IHostApplicationLifetime lifetime) : BackgroundService
+    public class NpCacheBgService(IServiceScopeFactory scopeFactory, ILogger<NpCacheBgService> logger, IHostApplicationLifetime lifetime) : BackgroundService
     {
         private readonly PeriodicTimer timer = new(TimeSpan.FromDays(1));
 
@@ -21,7 +21,7 @@ namespace LaptopServer.Services.Background_services
 
             try
             {
-                //await WaitUntilNextNight(stoppingToken);
+                await WaitUntilNextNight(stoppingToken);
                 await UpdateNpWarehouses(stoppingToken);
 
                 while (await timer.WaitForNextTickAsync(stoppingToken))
@@ -51,7 +51,8 @@ namespace LaptopServer.Services.Background_services
             try
             {
                 using IServiceScope scope = scopeFactory.CreateScope();
-                var novaPost = scope.ServiceProvider.GetRequiredService<INovaPostService>();
+                var novaPostApi = scope.ServiceProvider.GetRequiredService<INovaPostApiService>();
+                var novaPostDb = scope.ServiceProvider.GetRequiredService<INovaPostDbService>();
 
                 var channel = Channel.CreateBounded<NpWarehouse>(new BoundedChannelOptions(5000)
                 {
@@ -60,8 +61,8 @@ namespace LaptopServer.Services.Background_services
                     FullMode = BoundedChannelFullMode.Wait,
                 });
 
-                Task writerTask = novaPost.WriteChannelWarehouses(channel.Writer, ct);
-                Task readerTask = novaPost.ReadChannelWarehouse(channel.Reader, ct);
+                Task writerTask = novaPostApi.WriteChannelWarehouses(channel.Writer, ct);
+                Task readerTask = novaPostDb.ReadChannelWarehouse(channel.Reader, ct);
 
                 await Task.WhenAll(writerTask, readerTask);
 

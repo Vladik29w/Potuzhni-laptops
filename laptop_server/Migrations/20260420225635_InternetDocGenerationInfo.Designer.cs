@@ -5,6 +5,7 @@ using LaptopServer.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,9 +13,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaptopServer.Migrations
 {
     [DbContext(typeof(LaptopsDBContext))]
-    partial class LaptopsDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260420225635_InternetDocGenerationInfo")]
+    partial class InternetDocGenerationInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -144,10 +147,12 @@ namespace LaptopServer.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("NpContactRecipientRef")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<string>("NpRecipientRef")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<int>("PayMethod")
                         .HasColumnType("int");
@@ -170,7 +175,8 @@ namespace LaptopServer.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TrackingDocRef")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(14)
+                        .HasColumnType("nvarchar(14)");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "CustomerInfo", "LaptopServer.Entities.OrderEntity.CustomerInfo#CustomerInfoType", b1 =>
                         {

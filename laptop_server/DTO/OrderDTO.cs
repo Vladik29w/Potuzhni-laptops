@@ -1,20 +1,16 @@
-﻿using LaptopServer.Entities;
-using LaptopServer.Enums;
-using Microsoft.EntityFrameworkCore;
+﻿using LaptopServer.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.Data;
 
 namespace LaptopServer.DTO
 {
     public record OrderDTO
     {
-        public Guid Id { get; init; }
+        public Guid Id { get; set; }
         public List<OrderItemDTO> OrderItems { get; set; } = new List<OrderItemDTO>();
         public required decimal TotalPrice { get; set; }
         public PayEnum PayMethod { get; set; } = PayEnum.Unknown;
         public DeliveryEnum DeliveryMethod { get; set; } = DeliveryEnum.Unknown;
-        public required string PhoneNumber { get; set; }
-        public string? Email { get; set; }
+        public required CustomerInfoDTO CustomerInfo { get; set;  }
         public string? DeliveryCityRef { get; set; }
         public string? DeliveryCityName { get; set; }
         public string? DeliveryWarehouseRef { get; set; }
@@ -38,12 +34,26 @@ namespace LaptopServer.DTO
         public Guid CartId { get; init; }
         public PayEnum PayMethod { get; init; }
         public DeliveryEnum DeliveryMethod { get; init; }
-        public required string PhoneNumber { get; init; }
-        public string? Email { get; init; }
+        public required CustomerInfoDTO CustomerInfo { get; init; }
         public string? DeliveryCityRef { get; init; }
         public string? DeliveryCityName { get; init; }
         public string? DeliveryWarehouseRef { get; init; }
         public string? DeliveryWarehouseName { get; init; }
+    }
+    public record CustomerInfoDTO
+    {
+        [MaxLength(32)]
+        public required string FirstName { get; set; }
+        [MaxLength(32)]
+        public string MiddleName { get; set; } = string.Empty;
+        [MaxLength(32)]
+        public required string LastName { get; set; }
+        [Phone]
+        [MaxLength(16)]
+        public required string PhoneNumber { get; set; }
+        [EmailAddress]
+        [MaxLength(64)]
+        public string? Email { get; set; }
     }
     public record OrderStatsDTO(DateTime Date, int Quantity, decimal Sum);
 }
