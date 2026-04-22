@@ -19,6 +19,7 @@ namespace LaptopServer.Service
         Task<IReadOnlyList<OrderDTO>> GetAllOrders(CancellationToken ct = default);
         Task<ErrorOr<CustomerInfoDTO>> GetCustomerInfo(Guid orderId, CancellationToken ct = default);
         Task ConfirmOrder(Guid orderId, CancellationToken ct = default);
+        Task<IReadOnlyList<OrderStatsDTO>> GetOrderStats(int days, CancellationToken ct = default);
     }
     public class OrderService(LaptopsDBContext dbContext, ICartService cartService, IMonopayService monopay, IMediator mediator) : IOrderService
     {
@@ -121,6 +122,27 @@ namespace LaptopServer.Service
             if (customer == null)
                 return Error.NotFound(code: "CustomerInfoNotFound");
             return customer;
+        }
+
+        public async Task<IReadOnlyList<OrderStatsDTO>> GetOrderStats(int days, CancellationToken ct = default)
+        {
+            var startDay = DateTime.UtcNow.AddDays(-days).Date;
+            var groupedData = await dbContext.Orders
+                .AsNoTracking()
+                .Where(o => o.CreatedAt >= startDay)
+                .GroupBy(o => o.CreatedAt.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    Quantity = g.Count(),
+                    Sum = g.Sum(o => o.TotalPrice)
+                })
+                .OrderBy(s => s.Date)
+                .ToListAsync(ct);
+
+            return groupedData
+                .Select(o => new OrderStatsDTO(o.Date, o.Quantity, o.Sum))
+                .ToList();
         }
     }
 }

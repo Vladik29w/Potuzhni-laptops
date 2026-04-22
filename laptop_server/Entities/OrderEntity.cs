@@ -48,7 +48,7 @@ namespace LaptopServer.Entities
         public string? PaymentId { get; set; }
         public string? PaymentUrl { get; set; }
         public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
-        public DateTime CreatedAt { get; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     }
     public class OrderItemEntity
     {

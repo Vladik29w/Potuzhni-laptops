@@ -22,7 +22,6 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IAdminPanelService, AdminPanelService>();
 builder.Services.AddScoped<INovaPostDbService, NovaPostDbService>();
 //Background services
 builder.Services.AddHostedService<CartCleanerBgService>();
