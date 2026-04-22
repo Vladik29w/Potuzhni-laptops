@@ -21,6 +21,18 @@ namespace LaptopServer.Entities
         public string? GPU { get; set; }
         public double VolumeGeneral { get; set; } = 0.2;
         public double Weight { get; set; } = 3;
+        [MaxLength(32)]
+        [RegularExpression(@"^\d+(\s?(GB|TB))?$")]
+        public string? DiskSize { get; set; }
+        [Range(10, 20)]
+        public double? ScreenSize { get; set; }
+        [MaxLength(32)]
+        [RegularExpression(@"^\d+x\d+$")]
+        public string? ScreenResolution { get; set; }
+        [Range(60, 240)]
+        public int? ScreenRefresh { get; set; }
+        [Range(0, 500)]
+        public int? Battery { get; set; }
 
     }
 }

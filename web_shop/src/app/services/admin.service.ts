@@ -12,7 +12,8 @@ export class AdminService {
   private http = inject(HttpClient);
   private _laptopService = inject(LaptopService);
 
-  private url = `${environment.apiUrl}${environment.endpoints.adminPanel}`;
+  private laptopUrl = `${environment.apiUrl}${environment.endpoints.laptop}`;
+  private orderUrl = `${environment.apiUrl}${environment.endpoints.order}`;
 
   public laptops = signal<LaptopAdminDTO[]>([]);
 
@@ -31,17 +32,17 @@ export class AdminService {
   saveLaptop(laptop: LaptopAdminDTO) {
 
     if (laptop.id && laptop.id !== '00000000-0000-0000-0000-000000000000' && laptop.id !== '') {
-      return this.http.put(`${this.url}/laptop`, laptop);
+      return this.http.put(this.laptopUrl, laptop);
     } else {
       laptop.id = '00000000-0000-0000-0000-000000000000';
-      return this.http.post<LaptopAdminDTO>(`${this.url}/laptop`, laptop);
+      return this.http.post<LaptopAdminDTO>(this.laptopUrl, laptop);
     }
   }
 
   deleteLaptop(id: string) {
-    return this.http.delete(`${this.url}/laptop/${id}`);
+    return this.http.delete(`${this.laptopUrl}/${id}`);
   }
   getOrderStats(days: number) {
-    return this.http.get<OrderStatsDTO[]>(`${this.url}/stats?days=${days}`);
+    return this.http.get<OrderStatsDTO[]>(`${this.orderUrl}/stats?days=${days}`);
   }
 }

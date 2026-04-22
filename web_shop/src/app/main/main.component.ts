@@ -1,52 +1,70 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, computed, signal, effect } from '@angular/core';
 import { LaptopService } from '../services/laptop.service';
-import { LaptopMainDTO } from '../DTO/laptop-dto';
+import { LaptopMainDTO, PagedResultDTO } from '../DTO/laptop-dto';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { LaptopDetails } from '../components/laptop-details/details.component';
-import { FormControl, ReactiveFormsModule } from '@angular/forms'
-import { distinctUntilChanged, debounceTime } from 'rxjs';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main.component',
   standalone: true,
-  imports: [CommonModule, RouterModule, LaptopDetails, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './main.component.html',
   styles: ``,
 })
-export class MainComponent implements OnInit {
-  laptops: LaptopMainDTO[] = [];
-  filteredLaptops: LaptopMainDTO[] = [];
-  constructor(private laptopService: LaptopService) {}
+export class MainComponent {
+  page = signal(1);
+  pageSize = 12;
+  searchQuery = signal('');
+  private searchSubject = new Subject<string>();
 
-  ngOnInit(): void {
-    this.laptopService.getAllLaptops().subscribe({
-      next: (data) => {
-        this.laptops = data;
-        this.filteredLaptops = data;
-      }
-    });   
+  laptopsResource = rxResource<PagedResultDTO<LaptopMainDTO>, { page: number; pageSize: number }>({
+    params: () => ({ page: this.page(), pageSize: this.pageSize }),
+    stream: ({ params }) => this.laptopService.getAllLaptops(params.page, params.pageSize)
+  });
 
-    this.searchForm.valueChanges.pipe(
-      distinctUntilChanged(),
-      debounceTime(250)
-    )
-      .subscribe(
-        (value: string | null) => {
-          this.filteredResults(value || '')
-        }
-      )
-  }
-  
-  searchForm = new FormControl('');
+  filteredLaptops = computed(() => {
+    const laptops = this.laptopsResource.value()?.items ?? [];
+    const text = this.searchQuery().trim().toLowerCase();
 
-  filteredResults(text: string) {
     if (!text) {
-      this.filteredLaptops = this.laptops;
-      return;
+      return laptops;
     }
-    this.filteredLaptops = this.laptops.filter(laptop =>
-      laptop?.name.toLocaleLowerCase().includes(text.toLowerCase())
-    )
+
+    return laptops.filter(laptop => laptop.name.toLowerCase().includes(text));
+  });
+
+  totalCount = computed(() => this.laptopsResource.value()?.totalCount ?? 0);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize)));
+
+  constructor(private laptopService: LaptopService) {
+    effect(() => {
+      this.searchSubject
+        .pipe(
+          debounceTime(200),
+          distinctUntilChanged()
+        )
+        .subscribe(value => {
+          this.searchQuery.set(value);
+        });
+    });
+  }
+
+  setSearchQuery(value: string) {
+    this.searchSubject.next(value);
+  }
+
+  previousPage() {
+    if (this.page() > 1) {
+      this.page.update(v => v - 1);
+    }
+  }
+
+  nextPage() {
+    if (this.page() < this.totalPages()) {
+      this.page.update(v => v + 1);
+    }
   }
 }

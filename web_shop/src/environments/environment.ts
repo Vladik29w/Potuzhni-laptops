@@ -4,7 +4,6 @@ export const environment = {
   endpoints: {
     laptop: '/laptop',
     account: '/account',
-    adminPanel: '/AdminPanel',
     cart: '/cart',
     order: '/order',
     novaPost: '/novapost'

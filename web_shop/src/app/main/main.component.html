@@ -1,16 +1,23 @@
 <div class="bg-surface-light py-8">
-  <div class="mx-auto max-w-7xl space-y-6 px-4">
+  <div class="mx-auto max-w-screen-2xl space-y-6 px-4">
     <div class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
-      <form>
-        <input
-          [formControl]="searchForm"
-          type="text"
-          placeholder="Search laptops by name...">
+      <form class="relative max-w-md">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <svg class="h-5 w-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+
+        <input [value]="searchQuery()"
+               (input)="setSearchQuery($any($event.target).value)"
+               type="text"
+               placeholder="Search laptops by name..."
+               class="w-full rounded-lg border border-border-default bg-surface-light py-2 pl-10 pr-4 text-sm focus:border-brand-secondary focus:outline-none focus:ring-1 focus:ring-brand-secondary">
       </form>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <div *ngFor="let laptop of filteredLaptops" class="flex h-full flex-col rounded-card bg-surface-white p-4 shadow-card md:p-6">
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div *ngFor="let laptop of filteredLaptops()" class="flex h-full flex-col rounded-card bg-surface-white p-4 shadow-card md:p-6">
         <div class="aspect-[4/3] overflow-hidden rounded-card border border-border-default bg-surface-light">
           <img [src]="laptop.img" [alt]="laptop.name" class="h-full w-full object-contain">
         </div>
@@ -26,7 +33,27 @@
       </div>
     </div>
 
-    <div *ngIf="filteredLaptops.length === 0" class="rounded-card border border-dashed border-border-default bg-surface-white px-4 py-10 text-center shadow-card">
+    <div class="flex items-center justify-center gap-4 rounded-card bg-surface-white p-4 shadow-card" *ngIf="totalCount() > 0">
+      <button
+        type="button"
+        (click)="previousPage()"
+        [disabled]="page() === 1"
+        class="rounded-button border border-bord px-4 py-2 text-sm font-semibold disabled:opacity-50">
+        Prev
+      </button>
+
+      <span class="text-sm font-medium text-text-muted">Page {{ page() }} / {{ totalPages() }}</span>
+
+      <button
+        type="button"
+        (click)="nextPage()"
+        [disabled]="page() >= totalPages()"
+        class="rounded-button border border-border-default px-4 py-2 text-sm font-semibold disabled:opacity-50">
+        Next
+      </button>
+    </div>
+
+    <div *ngIf="filteredLaptops().length === 0 && !laptopsResource.isLoading()" class="rounded-card border border-dashed border-border-default bg-surface-white px-4 py-10 text-center shadow-card">
       <p class="text-sm font-medium text-text-muted">No laptops found</p>
     </div>
   </div>

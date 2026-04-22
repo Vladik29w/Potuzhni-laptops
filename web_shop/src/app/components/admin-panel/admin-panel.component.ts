@@ -4,12 +4,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LaptopAdminDTO } from '../../DTO/laptop-dto';
 import { OrderStatsDTO } from '../../DTO/order-dto';
 import { Chart, registerables } from 'chart.js';
+import { RouterLink } from '@angular/router';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-admin-panel.component',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './admin-panel.component.html',
   standalone: true,
 })
@@ -27,7 +28,12 @@ export class AdminPanelComponent implements OnInit {
     img: ['', Validators.required],
     cpu: ['', Validators.required],
     ram: [1, [Validators.required, Validators.min(1)]],
-    gpu: ['', Validators.required]
+    gpu: ['', Validators.required],
+    diskSize: [''],
+    screenSize: [1, [Validators.required, Validators.min(1)]],
+    screenResolution: ['', Validators.required],
+    screenRefresh: [1, [Validators.required, Validators.min(1)]],
+    battery: [1, [Validators.required, Validators.min(1)]],
   });
 
   public isEdit = signal(false);
@@ -81,7 +87,12 @@ export class AdminPanelComponent implements OnInit {
       img: '',
       cpu: '',
       ram: 1,
-      gpu: ''
+      gpu: '',
+      diskSize: '',
+      screenSize: 1,
+      screenResolution: '',
+      screenRefresh: 1,
+      battery: 1
     });
   }
 

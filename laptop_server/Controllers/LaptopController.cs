@@ -10,9 +10,12 @@ namespace LaptopServer.Controllers
     public class LaptopController(ILaptopService laptopService) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllLaptops(CancellationToken ct)
+        public async Task<IActionResult> GetAllLaptops([FromQuery] int page = 1, [FromQuery] int pageSize = 12, CancellationToken ct = default)
         {
-            var laptops = await laptopService.GetAllLaptops(ct);
+            if (page < 1 || pageSize < 1)
+                return BadRequest("page and pageSize must be greater than 0");
+
+            var laptops = await laptopService.GetAllLaptops(page, pageSize, ct);
             return Ok(laptops);
         }
         [HttpGet("{id}")]

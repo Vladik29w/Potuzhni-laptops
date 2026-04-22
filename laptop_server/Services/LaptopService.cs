@@ -2,13 +2,14 @@
 using LaptopServer.DTO;
 using LaptopServer.Mappers;
 using ErrorOr;
+using Riok.Mapperly;
 using Microsoft.EntityFrameworkCore;
 
 namespace LaptopServer.Service
 {
     public interface ILaptopService
     {
-        Task<IReadOnlyList<LaptopMainDTO>> GetAllLaptops(CancellationToken ct = default);
+        Task<PagedResultDTO<LaptopMainDTO>> GetAllLaptops(int page, int pageSize, CancellationToken ct = default);
         Task<LaptopDetailsDTO?> GetById(Guid id, CancellationToken ct = default);
         Task<IReadOnlyList<LaptopAdminDTO>> GetLaptopsAdmin(CancellationToken ct = default);
         Task<ErrorOr<LaptopAdminDTO>> AddLaptop(LaptopAdminDTO laptop, CancellationToken ct = default);
@@ -18,12 +19,25 @@ namespace LaptopServer.Service
 
     public class LaptopService(LaptopsDBContext dbContext) : ILaptopService
     {
-        public async Task<IReadOnlyList<LaptopMainDTO>> GetAllLaptops(CancellationToken ct = default)
+        public async Task<PagedResultDTO<LaptopMainDTO>> GetAllLaptops(int page, int pageSize, CancellationToken ct = default)
         {
-            return await dbContext.Laptops
+            var skip = (page - 1) * pageSize;
+            var totalCount = await dbContext.Laptops.CountAsync(ct);
+            var items = await dbContext.Laptops
                 .AsNoTracking()
+                .OrderBy(l => l.Price)
+                .Skip(skip)
+                .Take(pageSize)
                 .ToMain()
                 .ToListAsync(ct);
+
+            return new PagedResultDTO<LaptopMainDTO>
+            {
+                Items = items,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
         }
         public async Task<LaptopDetailsDTO?> GetById(Guid id, CancellationToken ct = default)
         {
@@ -37,7 +51,7 @@ namespace LaptopServer.Service
         {
             return await dbContext.Laptops
               .AsNoTracking()
-              .ToAdmin()
+              .ToAdminList()
               .ToListAsync(ct);
         }
 
@@ -58,12 +72,7 @@ namespace LaptopServer.Service
             if (exLaptop == null)
                 return Error.NotFound(code: "LaptopNotFound");
 
-            exLaptop.Name = laptop.Name;
-            exLaptop.Price = laptop.Price;
-            exLaptop.Img = laptop.Img;
-            exLaptop.CPU = laptop.CPU;
-            exLaptop.RAM = laptop.RAM;
-            exLaptop.GPU = laptop.GPU;
+           var newLaptop = LaptopMapper.ToAdmin(exLaptop);
 
             await dbContext.SaveChangesAsync(ct);
             return Result.Updated;

@@ -9,7 +9,8 @@ namespace LaptopServer.Mappers
     {
         public static partial IQueryable<LaptopMainDTO> ToMain(this IQueryable<LaptopEntity> entity);
         public static partial IQueryable<LaptopDetailsDTO> ToDetails(this IQueryable<LaptopEntity> entity);
-        public static partial IQueryable<LaptopAdminDTO> ToAdmin(this IQueryable<LaptopEntity> entity);
+        public static partial IQueryable<LaptopAdminDTO> ToAdminList(this IQueryable<LaptopEntity> entity);
+        public static partial LaptopAdminDTO ToAdmin(this LaptopEntity entity);
         public static partial LaptopEntity ToEntity(this LaptopAdminDTO entity);
     }
 }
