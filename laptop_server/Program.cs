@@ -61,6 +61,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<LaptopsDBContext>()
@@ -106,6 +107,7 @@ app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
     options
+        .AddPreferredSecuritySchemes("https")
         .WithTitle("LaptopServer")
         .WithTheme(ScalarTheme.Moon)
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
