@@ -35,15 +35,22 @@
         <div>
           <label for="password">Password</label>
           <input id="password" type="password" formControlName="password" placeholder="Create a password">
-          @if (registerForm.controls.password.touched && registerForm.controls.password.errors?.['minlength']) {
+
+          @if (registerForm.controls.password.touched) {
+          @if (registerForm.controls.password.errors?.['minlength']) {
           <div class="mt-1 text-xs text-status-error-text">Password must be at least 6 characters long.</div>
+          }
+
+          @if (registerForm.controls.password.errors?.['pattern']) {
+          <div class="mt-1 text-xs text-status-error-text">Password must contain a number.</div>
+          }
           }
         </div>
 
         <div>
           <label for="confirmPassword">Confirm Password</label>
           <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Repeat your password">
-          @if (registerForm.touched && registerForm.errors?.['passwordsMismatch']) {
+          @if (registerForm.controls.confirmPassword.touched && registerForm.errors?.['passwordMismatch']) {
           <div class="mt-1 text-xs text-status-error-text">Passwords do not match.</div>
           }
         </div>

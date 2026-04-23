@@ -47,6 +47,9 @@ namespace LaptopServer.Controllers
             var refToken = Request.Cookies["refToken"];
             if (string.IsNullOrEmpty(refToken)) return BadRequest();
             var userTokensDTO = await accountService.RefreshUserToken(refToken, ct);
+
+            if (userTokensDTO.IsError)
+                return Unauthorized(userTokensDTO.FirstError.Code);
             return AuthLogic(userTokensDTO.Value);
         }
         [Authorize]
