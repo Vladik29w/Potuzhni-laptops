@@ -1,8 +1,10 @@
-﻿using LaptopServer.DTO;
+﻿using ErrorOr;
+using LaptopServer.DTO;
 using LaptopServer.Enums;
 using LaptopServer.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace LaptopServer.Controllers
 {
@@ -31,6 +33,15 @@ namespace LaptopServer.Controllers
         {
             var result = await orderService.GetOrderStats(days, ct);
             return Ok(result);
+        }
+        [HttpGet("all")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<ActionResult<PageDTO<OrderDTO>>> GetAllOrders([FromQuery] int page = 1, [FromQuery] int pageSize = 12, CancellationToken ct = default)
+        {
+            if (page < 1 || pageSize < 1 || pageSize > 100)
+                return BadRequest();
+            var res = await orderService.GetAllOrders(page, pageSize, ct);
+            return Ok(res);
         }
     }
 }

@@ -10,6 +10,7 @@ namespace LaptopServer.DTO
         public required decimal TotalPrice { get; set; }
         public PayEnum PayMethod { get; set; } = PayEnum.Unknown;
         public DeliveryEnum DeliveryMethod { get; set; } = DeliveryEnum.Unknown;
+        public bool IsConfirmed { get; set; } = false;
         public required CustomerInfoDTO CustomerInfo { get; set;  }
         public string? DeliveryCityRef { get; set; }
         public string? DeliveryCityName { get; set; }

@@ -2,7 +2,7 @@ import { Component, inject, DestroyRef } from '@angular/core';
 import { OrderService } from '../../services/order.service';
 import { CartService } from '../../services/cart.service';
 import { NovaPostService } from '../../services/nova-post.service';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { CartDTO } from '../../DTO/cart-dto';
 import { NpSettlementAddress, NpWarehouse } from '../../DTO/novapost-dto';
@@ -12,7 +12,6 @@ import { debounceTime, Observable, distinctUntilChanged, filter, of, switchMap, 
 import { AsyncPipe, DOCUMENT } from '@angular/common';
 //TODO
 //баг з автокомплітом НП
-//баг з оплатою кешом
 @Component({
   selector: 'app-order.component',
   standalone: true,
@@ -24,17 +23,27 @@ export class OrderComponent {
   private _cartService = inject(CartService);
   private _novaPostService = inject(NovaPostService);
   private _destroyRef = inject(DestroyRef);
+  private fb = inject(FormBuilder).nonNullable;
   private _document = inject(DOCUMENT);
 
-  orderForm = new FormGroup({
-    pay: new FormControl<PayEnum>(PayEnum.Unknown, { nonNullable: true }),
-    delivery: new FormControl<DeliveryEnum>(DeliveryEnum.Unknown, { nonNullable: true }),
-    phone: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
-    email: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
-    citySearch: new FormControl<string>('', { nonNullable: true }),
-    cityRef: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
-    warehouseSearch: new FormControl<string>('', { nonNullable: true }),
-    warehouseRef: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] })
+ orderForm = this.fb.group({
+    pay: [PayEnum.Unknown],
+    delivery: [DeliveryEnum.Unknown],
+    
+    customerInfo: this.fb.group({
+      firstName: ['', [Validators.required, Validators.maxLength(32)]],
+      lastName: ['', [Validators.required, Validators.maxLength(32)]],
+      middleName: [''],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?\d{10,15}$/)]],
+      email: ['', [Validators.email]]
+    }),
+
+    deliveryDetails: this.fb.group({
+      citySearch: [''],
+      cityRef: ['', [Validators.required]],
+      warehouseSearch: [''],
+      warehouseRef: ['', [Validators.required]]
+    })
   });
 
   cart?: CartDTO;
@@ -49,7 +58,7 @@ export class OrderComponent {
     { id: DeliveryEnum.NovaPost, name: 'Nova Post' }
   ];
 
-  cities: Observable<NpSettlementAddress[]> = this.orderForm.controls.citySearch.valueChanges.pipe(
+  cities: Observable<NpSettlementAddress[]> = this.orderForm.controls.deliveryDetails.controls.citySearch.valueChanges.pipe(
     debounceTime(300),
     distinctUntilChanged(),
     filter(queue => queue.length >= 3),
@@ -58,11 +67,11 @@ export class OrderComponent {
     ))
   );
 
-  warehouses: Observable<NpWarehouse[]> = this.orderForm.controls.warehouseSearch.valueChanges.pipe(
+  warehouses: Observable<NpWarehouse[]> = this.orderForm.controls.deliveryDetails.controls.warehouseSearch.valueChanges.pipe(
     debounceTime(300),
     distinctUntilChanged(),
     switchMap(queue => {
-      let ref = this.orderForm.controls.cityRef.getRawValue();
+      let ref = this.orderForm.controls.deliveryDetails.controls.cityRef.value;
       if (!ref) return of([]);
       return this._novaPostService.getWarehouses(ref, queue).pipe(
         catchError(() => of([]))
@@ -79,41 +88,49 @@ export class OrderComponent {
     this.orderForm.controls.delivery.valueChanges
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((deliveryMethod) => {
-        const cityRefControl = this.orderForm.controls.cityRef;
-        const warehouseRefControl = this.orderForm.controls.warehouseRef;
+        const deliveryDetailsGroup = this.orderForm.controls.deliveryDetails;
+        const cityRefControl = deliveryDetailsGroup.controls.cityRef;
+        const warehouseRefControl = deliveryDetailsGroup.controls.warehouseRef;
 
         if (deliveryMethod === DeliveryEnum.NovaPost) {
           // Required for Nova Post
-          cityRefControl.setValidators([Validators.required]);
-          warehouseRefControl.setValidators([Validators.required]);
+          cityRefControl?.setValidators([Validators.required]);
+          warehouseRefControl?.setValidators([Validators.required]);
         } else if (deliveryMethod === DeliveryEnum.PickUp) {
           // Not required for Pickup
-          cityRefControl.setValidators([]);
-          warehouseRefControl.setValidators([]);
+          cityRefControl?.setValidators([]);
+          warehouseRefControl?.setValidators([]);
           // Clear the values
-          cityRefControl.setValue('');
-          warehouseRefControl.setValue('');
+          cityRefControl?.setValue('');
+          warehouseRefControl?.setValue('');
+          deliveryDetailsGroup?.patchValue({
+            citySearch: '',
+            warehouseSearch: ''
+          });
         }
 
-        cityRefControl.updateValueAndValidity();
-        warehouseRefControl.updateValueAndValidity();
+        cityRefControl?.updateValueAndValidity();
+        warehouseRefControl?.updateValueAndValidity();
       });
   }
 
   selectCity(city: NpSettlementAddress) {
     this.orderForm.patchValue({
-      citySearch: city.Present,
-      cityRef: city.SettlementRef || city.Ref,
-      warehouseSearch: '',
-      warehouseRef: ''
+      deliveryDetails: {
+        citySearch: city.Present,
+        cityRef: city.SettlementRef || city.Ref,
+        warehouseSearch: '',
+        warehouseRef: ''
+      }
     });
-    this.orderForm.controls.warehouseSearch.setValue('');
   }
 
   selectWarehouse(warehouse: NpWarehouse) {
     this.orderForm.patchValue({
-      warehouseSearch: warehouse.Description,
-      warehouseRef: warehouse.Ref
+      deliveryDetails: {
+        warehouseSearch: warehouse.Description,
+        warehouseRef: warehouse.Ref
+      }
     });
   }
 
@@ -123,19 +140,24 @@ export class OrderComponent {
       return;
     }
 
-    const { pay, delivery, phone, email, cityRef, citySearch, warehouseRef, warehouseSearch } = this.orderForm.getRawValue();
+    const formValue = this.orderForm.getRawValue();
 
     const orderData: CreateOrderDTO = {
       cartId: this._cartService.cartId,
-      payMethod: pay,
-      deliveryMethod: delivery,
-      phoneNumber: phone,
-      email: email,
-      ...(delivery === DeliveryEnum.NovaPost && {
-        deliveryCityRef: cityRef,
-        deliveryCityName: citySearch,
-        deliveryWarehouseRef: warehouseRef,
-        deliveryWarehouseName: warehouseSearch
+      payMethod: formValue.pay,
+      deliveryMethod: formValue.delivery,
+      customerInfo: {
+        firstName: formValue.customerInfo.firstName,
+        middleName: formValue.customerInfo.middleName,
+        lastName: formValue.customerInfo.lastName,
+        phoneNumber: formValue.customerInfo.phoneNumber,
+        email: formValue.customerInfo.email ?? undefined
+      },
+      ...(formValue.delivery === DeliveryEnum.NovaPost && {
+        deliveryCityRef: formValue.deliveryDetails.cityRef,
+        deliveryCityName: formValue.deliveryDetails.citySearch,
+        deliveryWarehouseRef: formValue.deliveryDetails.warehouseRef,
+        deliveryWarehouseName: formValue.deliveryDetails.warehouseSearch
       })
     };
 
@@ -143,11 +165,11 @@ export class OrderComponent {
       .subscribe({
       next: (res: OrderResponce) => {
           console.log(`Order created: ${res.orderId}`);
-          this._document.location.href = "/";
-        if (pay === PayEnum.Online && res.paymentUrl) {
+        if (formValue.pay === PayEnum.Online && res.paymentUrl) {
           this._document.location.href = res.paymentUrl;
         } else {
           alert('Order created successfully');
+          this._document.location.href = "/";
           this.orderForm.reset();
         }
       },

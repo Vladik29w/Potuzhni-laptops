@@ -1,6 +1,7 @@
 import { Component, computed, signal, effect } from '@angular/core';
 import { LaptopService } from '../services/laptop.service';
-import { LaptopMainDTO, PagedResultDTO } from '../DTO/laptop-dto';
+import { LaptopMainDTO } from '../DTO/laptop-dto';
+import { PageDTO } from '../DTO/page-dto';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
@@ -20,7 +21,7 @@ export class MainComponent {
   searchQuery = signal('');
   private searchSubject = new Subject<string>();
 
-  laptopsResource = rxResource<PagedResultDTO<LaptopMainDTO>, { page: number; pageSize: number }>({
+  laptopsResource = rxResource<PageDTO<LaptopMainDTO>, { page: number; pageSize: number }>({
     params: () => ({ page: this.page(), pageSize: this.pageSize }),
     stream: ({ params }) => this.laptopService.getAllLaptops(params.page, params.pageSize)
   });

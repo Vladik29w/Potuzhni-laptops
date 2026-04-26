@@ -28,21 +28,4 @@ export class AdminService {
       },
     });
   }
-
-  saveLaptop(laptop: LaptopAdminDTO) {
-
-    if (laptop.id && laptop.id !== '00000000-0000-0000-0000-000000000000' && laptop.id !== '') {
-      return this.http.put(this.laptopUrl, laptop);
-    } else {
-      laptop.id = '00000000-0000-0000-0000-000000000000';
-      return this.http.post<LaptopAdminDTO>(this.laptopUrl, laptop);
-    }
-  }
-
-  deleteLaptop(id: string) {
-    return this.http.delete(`${this.laptopUrl}/${id}`);
-  }
-  getOrderStats(days: number) {
-    return this.http.get<OrderStatsDTO[]>(`${this.orderUrl}/stats?days=${days}`);
-  }
 }

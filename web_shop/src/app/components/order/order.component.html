@@ -9,6 +9,32 @@
 
       <div class="lg:col-span-3 space-y-6">
         <section class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
+          <h3 class="text-lg font-bold text-text-main">Contact Information</h3>
+          <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2" formGroupName="customerInfo">
+            <div>
+              <label>First Name</label>
+              <input type="text" formControlName="firstName" placeholder="First Name" />
+            </div>
+            <div>
+              <label>Last Name</label>
+              <input type="text" formControlName="lastName" placeholder="Last Name" />
+            </div>
+            <div>
+              <label>Middle Name</label>
+              <input type="text" formControlName="middleName" placeholder="Middle Name" />
+            </div>
+            <div>
+              <label>Phone</label>
+              <input type="text" formControlName="phoneNumber" placeholder="Phone Number" />
+            </div>
+            <div>
+              <label>Email</label>
+              <input type="email" formControlName="email" placeholder="Email Address" />
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
           <h3 class="text-lg font-bold text-text-main">Delivery & Payment</h3>
           <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
@@ -37,24 +63,10 @@
           </div>
         </section>
 
-        <section class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
-          <h3 class="text-lg font-bold text-text-main">Contact Information</h3>
-          <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label>Phone</label>
-              <input type="text" formControlName="phone" placeholder="Phone Number" />
-            </div>
-            <div>
-              <label>Email</label>
-              <input type="email" formControlName="email" placeholder="Email Address" />
-            </div>
-          </div>
-        </section>
-
         @if (orderForm.get('delivery')?.value === novaPostEnumId) {
         <section class="rounded-card bg-surface-white p-4 shadow-card md:p-6">
           <h3 class="text-lg font-bold text-text-main">Nova Post Delivery</h3>
-          <div class="mt-4 grid grid-cols-1 gap-4">
+          <div class="mt-4 grid grid-cols-1 gap-4" formGroupName="deliveryDetails">
             <div class="relative">
               <label for="citySearch">City</label>
               <input type="text"
@@ -64,7 +76,7 @@
                      autocomplete="off" />
 
               @if (cities | async; as cityList) {
-              @if (cityList.length > 0 && !orderForm.value.cityRef) {
+              @if (cityList.length > 0 && !orderForm.get('deliveryDetails.cityRef')?.value) {
               <ul class="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-card border border-border-default bg-surface-white shadow-card">
                 @for (city of cityList; track city.Ref) {
                 <li class="cursor-pointer px-3 py-2 text-sm hover:bg-surface-light" (click)="selectCity(city)">
@@ -76,7 +88,7 @@
               }
             </div>
 
-            @if (orderForm.get('cityRef')?.value) {
+            @if (orderForm.get('deliveryDetails.cityRef')?.value) {
             <div class="relative">
               <label for="warehouseSearch">Nova Post Warehouse</label>
               <input type="text"
@@ -86,7 +98,7 @@
                      autocomplete="off" />
 
               @if (warehouses | async; as warehouseList) {
-              @if (warehouseList.length > 0 && !orderForm.value.warehouseRef) {
+              @if (warehouseList.length > 0 && !orderForm.get('deliveryDetails.warehouseRef')?.value) {
               <ul class="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-card border border-border-default bg-surface-white shadow-card">
                 @for (wh of warehouseList; track wh.Ref) {
                 <li class="cursor-pointer px-3 py-2 text-sm hover:bg-surface-light" (click)="selectWarehouse(wh)">

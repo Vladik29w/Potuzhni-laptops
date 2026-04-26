@@ -1,6 +1,6 @@
 namespace LaptopServer.DTO
 {
-    public record PagedResultDTO<T>
+    public record PageDTO<T>
     {
         public required IReadOnlyList<T> Items { get; init; }
         public required int Page { get; init; }

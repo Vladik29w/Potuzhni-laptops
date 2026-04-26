@@ -12,8 +12,8 @@ namespace LaptopServer.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllLaptops([FromQuery] int page = 1, [FromQuery] int pageSize = 12, CancellationToken ct = default)
         {
-            if (page < 1 || pageSize < 1)
-                return BadRequest("page and pageSize must be greater than 0");
+            if (page < 1 || pageSize < 1 || pageSize > 100)
+                return BadRequest();
 
             var laptops = await laptopService.GetAllLaptops(page, pageSize, ct);
             return Ok(laptops);

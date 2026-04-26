@@ -9,7 +9,7 @@ namespace LaptopServer.Service
 {
     public interface ILaptopService
     {
-        Task<PagedResultDTO<LaptopMainDTO>> GetAllLaptops(int page, int pageSize, CancellationToken ct = default);
+        Task<PageDTO<LaptopMainDTO>> GetAllLaptops(int page, int pageSize, CancellationToken ct = default);
         Task<LaptopDetailsDTO?> GetById(Guid id, CancellationToken ct = default);
         Task<IReadOnlyList<LaptopAdminDTO>> GetLaptopsAdmin(CancellationToken ct = default);
         Task<ErrorOr<LaptopAdminDTO>> AddLaptop(LaptopAdminDTO laptop, CancellationToken ct = default);
@@ -19,7 +19,7 @@ namespace LaptopServer.Service
 
     public class LaptopService(LaptopsDBContext dbContext) : ILaptopService
     {
-        public async Task<PagedResultDTO<LaptopMainDTO>> GetAllLaptops(int page, int pageSize, CancellationToken ct = default)
+        public async Task<PageDTO<LaptopMainDTO>> GetAllLaptops(int page, int pageSize, CancellationToken ct = default)
         {
             var skip = (page - 1) * pageSize;
             var totalCount = await dbContext.Laptops.CountAsync(ct);
@@ -31,7 +31,7 @@ namespace LaptopServer.Service
                 .ToMain()
                 .ToListAsync(ct);
 
-            return new PagedResultDTO<LaptopMainDTO>
+            return new PageDTO<LaptopMainDTO>
             {
                 Items = items,
                 Page = page,

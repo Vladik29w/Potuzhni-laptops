@@ -4,7 +4,8 @@ import { LaptopDetails } from './components/laptop-details/details.component';
 import { OrderComponent } from './components/order/order.component';
 import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
-import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
+import { AdminLaptopComponent } from './components/admin-panel/admin-laptop.component';
+import { AdminOrdersComponent } from './components/admin-orders.component/admin-orders.component';
 import { adminGuard } from './adminGuard';
 
 export const routes: Routes = [
@@ -35,9 +36,15 @@ export const routes: Routes = [
     title: 'login'
   },
   {
-    path: 'admin',
-    component: AdminPanelComponent,
-    title: 'admin',
+    path: 'admin/laptop',
+    component: AdminLaptopComponent,
+    title: 'admin laptops',
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/order',
+    component: AdminOrdersComponent,
+    title: 'admin orders',
     canActivate: [adminGuard]
   },
 ];

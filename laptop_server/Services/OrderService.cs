@@ -16,7 +16,7 @@ namespace LaptopServer.Service
         Task<ErrorOr<OrderDTO>> CreateOrder(CreateOrderDTO creatingOrder, CancellationToken cancellationToken = default);
         Task UpdateOrder(Guid orderId, PaymentStatus status, CancellationToken ct = default);
         Task<ErrorOr<OrderDTO>> GetOrder(Guid orderId, CancellationToken ct = default);
-        Task<IReadOnlyList<OrderDTO>> GetAllOrders(CancellationToken ct = default);
+        Task<PageDTO<OrderDTO>> GetAllOrders(int page, int pageSize, CancellationToken ct = default);
         Task<ErrorOr<CustomerInfoDTO>> GetCustomerInfo(Guid orderId, CancellationToken ct = default);
         Task ConfirmOrder(Guid orderId, CancellationToken ct = default);
         Task<IReadOnlyList<OrderStatsDTO>> GetOrderStats(int days, CancellationToken ct = default);
@@ -107,9 +107,25 @@ namespace LaptopServer.Service
             if (confirmedOrders > 0)
                 await mediator.Publish(new OrderNotification(orderId), ct);
         }
-        public async Task<IReadOnlyList<OrderDTO>> GetAllOrders(CancellationToken ct = default)
+        public async Task<PageDTO<OrderDTO>> GetAllOrders(int page, int pageSize, CancellationToken ct = default)
         {
-            return await dbContext.Orders.AsNoTracking().ToOrder().ToListAsync(ct);
+            var skip = (page - 1) * pageSize;
+            var totalCount = await dbContext.Orders.CountAsync(ct);
+            var items = await dbContext.Orders
+                .AsNoTracking()
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToOrder()
+                .ToListAsync(ct);
+
+            return new PageDTO<OrderDTO>
+            {
+                Items = items,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
         }
         public async Task<ErrorOr<CustomerInfoDTO>> GetCustomerInfo(Guid orderId, CancellationToken ct = default)
         {

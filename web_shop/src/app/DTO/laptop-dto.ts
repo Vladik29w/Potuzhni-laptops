@@ -4,14 +4,6 @@ export interface LaptopMainDTO {
   price: number;
   img: string;
 };
-
-export interface PagedResultDTO<T> {
-  items: T[];
-  page: number;
-  pageSize: number;
-  totalCount: number;
-};
-
 export interface LaptopDetailsDTO {
   id: string;
   name: string;
