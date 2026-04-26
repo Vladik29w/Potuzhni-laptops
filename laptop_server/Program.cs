@@ -109,7 +109,7 @@ app.MapScalarApiReference(options =>
     options
         .AddPreferredSecuritySchemes("https")
         .WithTitle("LaptopServer")
-        .WithTheme(ScalarTheme.Moon)
+        .WithTheme(ScalarTheme.DeepSpace)
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
 

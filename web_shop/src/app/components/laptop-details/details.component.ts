@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LaptopService } from '../../services/laptop.service'
-import { CommonModule } from '@angular/common';
+
 import { CartService } from '../../services/cart.service'
 import { LaptopDetailsDTO } from '../../DTO/laptop-dto';
 
 @Component({
   selector: 'app-laptop-details',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './details.component.html',
   standalone: true,
 })

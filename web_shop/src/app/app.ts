@@ -2,14 +2,14 @@ import { Component, Signal, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { CartService } from './services/cart.service';
 import { AuthService } from './services/auth.service';
-import { CommonModule } from '@angular/common';
+
 import { CartDTO } from './DTO/cart-dto';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule],
+  imports: [RouterOutlet, RouterLink],
 })
 export class App {
   private authService = inject(AuthService);

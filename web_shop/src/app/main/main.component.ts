@@ -3,7 +3,7 @@ import { LaptopService } from '../services/laptop.service';
 import { LaptopMainDTO } from '../DTO/laptop-dto';
 import { PageDTO } from '../DTO/page-dto';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -11,7 +11,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 @Component({
   selector: 'app-main.component',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './main.component.html',
   styles: ``,
 })

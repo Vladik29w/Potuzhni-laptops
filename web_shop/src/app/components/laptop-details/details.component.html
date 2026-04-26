@@ -1,80 +1,69 @@
-<div *ngIf="laptop" class="min-h-screen bg-gray-50 py-12">
-  <div class="mx-auto max-w-6xl px-4">
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 items-start">
-
-      <div class="sticky top-8 rounded-2xl bg-white p-6 shadow-sm border border-gray-100">
-        <div class="aspect-square overflow-hidden rounded-xl bg-white">
-          <img class="h-full w-full object-contain hover:scale-105 transition-transform duration-300"
-               [src]="laptop.img"
-               [alt]="laptop.name">
-        </div>
-      </div>
-
-      <div class="flex flex-col">
-        <div class="rounded-2xl bg-white p-8 shadow-sm border border-gray-100">
-
-          <div class="mb-8">
-            <h1 class="text-3xl font-black text-gray-900 leading-tight uppercase tracking-tight">{{ laptop?.name }}</h1>
-            <div class="mt-4 flex items-center justify-between">
-              <span class="text-4xl font-black text-blue-600 tracking-tight">
-                {{ laptop?.price }} <span class="text-xl font-bold">₴</span>
-              </span>
-              <span class="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700 ring-1 ring-inset ring-green-600/20 uppercase">
-                In Stock
-              </span>
+@if (laptop) {
+  <div class="min-h-screen bg-gray-50 py-12">
+    <div class="mx-auto max-w-6xl px-4">
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 items-start">
+        <div class="sticky top-8 rounded-2xl bg-white p-6 shadow-sm border border-gray-100">
+          <div class="aspect-square overflow-hidden rounded-xl bg-white">
+            <img class="h-full w-full object-contain hover:scale-105 transition-transform duration-300"
+              [src]="laptop.img"
+              [alt]="laptop.name">
             </div>
           </div>
-
-          <div class="mb-8">
-            <h3 class="text-sm font-bold uppercase tracking-[0.1em] text-gray-400 mb-4">Technical Specifications</h3>
-            <div class="grid grid-cols-1 gap-y-4 border-t border-gray-100 pt-4">
-
-              <div class="flex justify-between items-center py-1 border-b border-gray-50">
-                <span class="text-sm font-medium text-gray-500">Processor</span>
-                <span class="text-sm font-bold text-gray-900">{{ laptop?.cpu }}</span>
+          <div class="flex flex-col">
+            <div class="rounded-2xl bg-white p-8 shadow-sm border border-gray-100">
+              <div class="mb-8">
+                <h1 class="text-3xl font-black text-gray-900 leading-tight uppercase tracking-tight">{{ laptop?.name }}</h1>
+                <div class="mt-4 flex items-center justify-between">
+                  <span class="text-4xl font-black text-blue-600 tracking-tight">
+                    {{ laptop?.price }} <span class="text-xl font-bold">₴</span>
+                  </span>
+                  <span class="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700 ring-1 ring-inset ring-green-600/20 uppercase">
+                    In Stock
+                  </span>
+                </div>
               </div>
-
-              <div class="flex justify-between items-center py-1 border-b border-gray-50">
-                <span class="text-sm font-medium text-gray-500">Memory (RAM)</span>
-                <span class="text-sm font-bold text-gray-900">{{ laptop?.ram }} GB</span>
+              <div class="mb-8">
+                <h3 class="text-sm font-bold uppercase tracking-[0.1em] text-gray-400 mb-4">Technical Specifications</h3>
+                <div class="grid grid-cols-1 gap-y-4 border-t border-gray-100 pt-4">
+                  <div class="flex justify-between items-center py-1 border-b border-gray-50">
+                    <span class="text-sm font-medium text-gray-500">Processor</span>
+                    <span class="text-sm font-bold text-gray-900">{{ laptop?.cpu }}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1 border-b border-gray-50">
+                    <span class="text-sm font-medium text-gray-500">Memory (RAM)</span>
+                    <span class="text-sm font-bold text-gray-900">{{ laptop?.ram }} GB</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1 border-b border-gray-50">
+                    <span class="text-sm font-medium text-gray-500">Graphics</span>
+                    <span class="text-sm font-bold text-gray-900 text-right">{{ laptop.gpu }}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1 border-b border-gray-50">
+                    <span class="text-sm font-medium text-gray-500">Storage</span>
+                    <span class="text-sm font-bold text-gray-900">{{ laptop.diskSize }}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1 border-b border-gray-50">
+                    <span class="text-sm font-medium text-gray-500">Display</span>
+                    <span class="text-sm font-bold text-gray-900">{{ laptop.screenSize }}″ {{ laptop.screenResolution }}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1 border-b border-gray-50">
+                    <span class="text-sm font-medium text-gray-500">Refresh Rate</span>
+                    <span class="text-sm font-bold text-gray-900">{{ laptop.screenRefresh }}Hz</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1">
+                    <span class="text-sm font-medium text-gray-500">Battery</span>
+                    <span class="text-sm font-bold text-gray-900">{{ laptop.battery }}W</span>
+                  </div>
+                </div>
               </div>
-
-              <div class="flex justify-between items-center py-1 border-b border-gray-50">
-                <span class="text-sm font-medium text-gray-500">Graphics</span>
-                <span class="text-sm font-bold text-gray-900 text-right">{{ laptop.gpu }}</span>
-              </div>
-
-              <div class="flex justify-between items-center py-1 border-b border-gray-50">
-                <span class="text-sm font-medium text-gray-500">Storage</span>
-                <span class="text-sm font-bold text-gray-900">{{ laptop.diskSize }}</span>
-              </div>
-
-              <div class="flex justify-between items-center py-1 border-b border-gray-50">
-                <span class="text-sm font-medium text-gray-500">Display</span>
-                <span class="text-sm font-bold text-gray-900">{{ laptop.screenSize }}″ {{ laptop.screenResolution }}</span>
-              </div>
-
-              <div class="flex justify-between items-center py-1 border-b border-gray-50">
-                <span class="text-sm font-medium text-gray-500">Refresh Rate</span>
-                <span class="text-sm font-bold text-gray-900">{{ laptop.screenRefresh }}Hz</span>
-              </div>
-
-              <div class="flex justify-between items-center py-1">
-                <span class="text-sm font-medium text-gray-500">Battery</span>
-                <span class="text-sm font-bold text-gray-900">{{ laptop.battery }}W</span>
+              <div class="mt-auto">
+                <button (click)="addProduct()"
+                  class="group relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-blue-600 px-8 py-4 text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-blue-300 active:scale-[0.98]">
+                  <span class="relative text-lg font-bold uppercase tracking-widest">Add to Cart</span>
+                </button>
               </div>
             </div>
-          </div>
-
-          <div class="mt-auto">
-            <button (click)="addProduct()"
-                    class="group relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-blue-600 px-8 py-4 text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-blue-300 active:scale-[0.98]">
-              <span class="relative text-lg font-bold uppercase tracking-widest">Add to Cart</span>
-            </button>
           </div>
         </div>
       </div>
-
     </div>
-  </div>
-</div>
+  }

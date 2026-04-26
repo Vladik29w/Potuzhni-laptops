@@ -9,52 +9,54 @@
         </div>
 
         <input [value]="searchQuery()"
-               (input)="setSearchQuery($any($event.target).value)"
-               type="text"
-               placeholder="Search laptops by name..."
-               class="w-full rounded-lg border border-border-default bg-surface-light py-2 pl-10 pr-4 text-sm focus:border-brand-secondary focus:outline-none focus:ring-1 focus:ring-brand-secondary">
-      </form>
-    </div>
-
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      <div *ngFor="let laptop of filteredLaptops()" class="flex h-full flex-col rounded-card bg-surface-white p-4 shadow-card md:p-6">
-        <div class="aspect-[4/3] overflow-hidden rounded-card border border-border-default bg-surface-light">
-          <img [src]="laptop.img" [alt]="laptop.name" class="h-full w-full object-contain">
-        </div>
-
-        <h3 class="mt-4 text-lg font-bold text-text-main">{{ laptop.name }}</h3>
-        <p class="mt-1 text-xl font-extrabold text-text-main">{{ laptop.price }}₴</p>
-
-        <a
-          [routerLink]="['/details', laptop.id]"
-          class="mt-4 inline-flex items-center justify-center rounded-button bg-brand-secondary px-4 py-2 text-sm font-bold uppercase tracking-wider text-surface-white transition-colors hover:bg-brand-secondary-hover md:px-6 md:py-3 md:text-base">
-          Details
-        </a>
+          (input)="setSearchQuery($any($event.target).value)"
+          type="text"
+          placeholder="Search laptops by name..."
+          class="w-full rounded-lg border border-border-default bg-surface-light py-2 pl-10 pr-4 text-sm focus:border-brand-secondary focus:outline-none focus:ring-1 focus:ring-brand-secondary">
+        </form>
       </div>
-    </div>
 
-    <div class="flex items-center justify-center gap-4 rounded-card bg-surface-white p-4 shadow-card" *ngIf="totalCount() > 0">
-      <button
-        type="button"
-        (click)="previousPage()"
-        [disabled]="page() === 1"
-        class="rounded-button border border-bord px-4 py-2 text-sm font-semibold disabled:opacity-50">
-        Prev
-      </button>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        @for (laptop of filteredLaptops(); track laptop) {
+          <div class="flex h-full flex-col rounded-card bg-surface-white p-4 shadow-card md:p-6">
+            <div class="aspect-[4/3] overflow-hidden rounded-card border border-border-default bg-surface-light">
+              <img [src]="laptop.img" [alt]="laptop.name" class="h-full w-full object-contain">
+            </div>
+            <h3 class="mt-4 text-lg font-bold text-text-main">{{ laptop.name }}</h3>
+            <p class="mt-1 text-xl font-extrabold text-text-main">{{ laptop.price }}₴</p>
+            <a
+              [routerLink]="['/details', laptop.id]"
+              class="mt-4 inline-flex items-center justify-center rounded-button bg-brand-secondary px-4 py-2 text-sm font-bold uppercase tracking-wider text-surface-white transition-colors hover:bg-brand-secondary-hover md:px-6 md:py-3 md:text-base">
+              Details
+            </a>
+          </div>
+        }
+      </div>
 
-      <span class="text-sm font-medium text-text-muted">Page {{ page() }} / {{ totalPages() }}</span>
+      @if (totalCount() > 0) {
+        <div class="flex items-center justify-center gap-4 rounded-card bg-surface-white p-4 shadow-card">
+          <button
+            type="button"
+            (click)="previousPage()"
+            [disabled]="page() === 1"
+            class="rounded-button border border-bord px-4 py-2 text-sm font-semibold disabled:opacity-50">
+            Prev
+          </button>
+          <span class="text-sm font-medium text-text-muted">Page {{ page() }} / {{ totalPages() }}</span>
+          <button
+            type="button"
+            (click)="nextPage()"
+            [disabled]="page() >= totalPages()"
+            class="rounded-button border border-border-default px-4 py-2 text-sm font-semibold disabled:opacity-50">
+            Next
+          </button>
+        </div>
+      }
 
-      <button
-        type="button"
-        (click)="nextPage()"
-        [disabled]="page() >= totalPages()"
-        class="rounded-button border border-border-default px-4 py-2 text-sm font-semibold disabled:opacity-50">
-        Next
-      </button>
-    </div>
-
-    <div *ngIf="filteredLaptops().length === 0 && !laptopsResource.isLoading()" class="rounded-card border border-dashed border-border-default bg-surface-white px-4 py-10 text-center shadow-card">
-      <p class="text-sm font-medium text-text-muted">No laptops found</p>
+      @if (filteredLaptops().length === 0 && !laptopsResource.isLoading()) {
+        <div class="rounded-card border border-dashed border-border-default bg-surface-white px-4 py-10 text-center shadow-card">
+          <p class="text-sm font-medium text-text-muted">No laptops found</p>
+        </div>
+      }
     </div>
   </div>
-</div>
