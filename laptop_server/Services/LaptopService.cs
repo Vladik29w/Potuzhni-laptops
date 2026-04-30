@@ -1,8 +1,7 @@
-﻿using LaptopServer.DB;
+﻿using ErrorOr;
+using LaptopServer.DB;
 using LaptopServer.DTO;
 using LaptopServer.Mappers;
-using ErrorOr;
-using Riok.Mapperly;
 using Microsoft.EntityFrameworkCore;
 
 namespace LaptopServer.Service
@@ -72,7 +71,7 @@ namespace LaptopServer.Service
             if (exLaptop == null)
                 return Error.NotFound(code: "LaptopNotFound");
 
-           var newLaptop = LaptopMapper.ToAdmin(exLaptop);
+            LaptopMapper.ApplyUpdate(laptop, exLaptop);
 
             await dbContext.SaveChangesAsync(ct);
             return Result.Updated;
