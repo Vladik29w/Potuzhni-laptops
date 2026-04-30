@@ -117,8 +117,8 @@ namespace LaptopServer.Service
 
         public async Task<CartDTO> ClearCart(Guid cartId, CancellationToken ct = default)
         {
-            await dbContext.Carts
-                .Where(c => c.Id == cartId)
+            await dbContext.CartItems
+                .Where(c => c.CartId == cartId)
                 .ExecuteDeleteAsync(ct);
 
             return new CartDTO { CartId = cartId, Items = [], GrandTotal = 0 };
